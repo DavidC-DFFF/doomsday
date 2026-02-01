@@ -3,14 +3,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Doomsday Drill — K a b c D</title>
+  <title>Doomsday Drill</title>
   <style>
     :root{
       --bg:#0b0f14; --card:#121826; --muted:#8aa0b8; --text:#e7eef7;
       --ok:#2ecc71; --bad:#ff4d4d; --line:#223046;
       --btn:#1f2a3d; --btn2:#223a63; --chip:#0e1420;
       --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-      --sans: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      --sans: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
     }
     *{box-sizing:border-box}
     body{
@@ -19,19 +19,17 @@
       color:var(--text);
       -webkit-tap-highlight-color: transparent;
     }
-    .wrap{max-width:980px; margin:0 auto; padding:14px}
+    .wrap{max-width:860px; margin:0 auto; padding:14px}
     header{display:flex; gap:10px; flex-wrap:wrap; justify-content:space-between; align-items:flex-end; margin-bottom:10px}
     h1{font-size:16px; margin:0}
     .sub{color:var(--muted); font-size:12px; margin-top:4px}
-    .pills{display:flex; gap:8px; flex-wrap:wrap}
+
     .pill{
       display:inline-flex; gap:8px; align-items:center;
       padding:7px 10px; border:1px solid var(--line);
       border-radius:999px; font-family:var(--mono);
       font-size:12px; color:var(--muted); background:var(--chip);
     }
-    .grid{display:grid; gap:12px; grid-template-columns:1fr 0.9fr}
-    @media (max-width: 860px){ .grid{grid-template-columns:1fr} }
 
     .card{
       background:rgba(18,24,38,.88);
@@ -41,14 +39,32 @@
       box-shadow:0 10px 30px rgba(0,0,0,.35);
     }
 
-    .yearBox{
-      display:flex; justify-content:space-between; align-items:center; gap:10px;
-      padding:12px; border:1px solid var(--line);
-      border-radius:14px; background:var(--chip);
-      margin-bottom:12px;
+    .topRow{
+      display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between;
+      margin-bottom:10px;
     }
-    .yearLabel{color:var(--muted); font-size:12px}
-    .yearValue{font-family:var(--mono); font-size:22px; font-weight:900; letter-spacing:.5px}
+
+    .yearField{
+      display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+      padding:10px 12px; border:1px solid var(--line);
+      border-radius:14px; background:var(--chip);
+      flex:1;
+      min-width:260px;
+    }
+    label{font-size:12px; color:var(--muted)}
+    input{
+      font-family:var(--mono);
+      font-weight:900;
+      font-size:18px;
+      padding:8px 10px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background:#0b1426;
+      color:var(--text);
+      width:120px;
+      text-align:center;
+    }
+    input[readonly]{opacity:1}
 
     .btns{display:flex; gap:10px; flex-wrap:wrap}
     button{
@@ -58,7 +74,7 @@
       padding:10px 12px;
       border-radius:12px;
       cursor:pointer;
-      font-weight:800;
+      font-weight:900;
       font-size:14px;
       min-height:44px;
     }
@@ -67,28 +83,24 @@
 
     .sectionTitle{
       display:flex; justify-content:space-between; align-items:flex-end;
-      margin:10px 0 8px 0;
+      margin:12px 0 8px 0;
       font-weight:900; font-size:14px;
     }
-    .mini{font-size:12px; color:var(--muted); font-weight:700}
-    .chips{
-      display:grid;
-      gap:8px;
-    }
-    .chips.cols7{ grid-template-columns: repeat(7, minmax(0,1fr)); }
-    .chips.cols9{ grid-template-columns: repeat(9, minmax(0,1fr)); }
-    .chips.cols12{ grid-template-columns: repeat(12, minmax(0,1fr)); }
-    .chips.cols3{ grid-template-columns: repeat(3, minmax(0,1fr)); }
+    .mini{font-size:12px; color:var(--muted); font-weight:800}
 
-    @media (max-width: 520px){
-      .chips.cols12{ grid-template-columns: repeat(6, minmax(0,1fr)); }
-      .chips.cols9{ grid-template-columns: repeat(5, minmax(0,1fr)); }
+    .chips{display:grid; gap:8px}
+    .cols7{grid-template-columns:repeat(7, minmax(0,1fr))}
+    .cols9{grid-template-columns:repeat(9, minmax(0,1fr))}
+    .cols12{grid-template-columns:repeat(12, minmax(0,1fr))}
+    .cols3{grid-template-columns:repeat(3, minmax(0,1fr))}
+    @media (max-width:520px){
+      .cols12{grid-template-columns:repeat(6, minmax(0,1fr))}
+      .cols9{grid-template-columns:repeat(5, minmax(0,1fr))}
     }
-    @media (max-width: 420px){
-      .chips.cols7{ grid-template-columns: repeat(4, minmax(0,1fr)); }
-      .chips.cols9{ grid-template-columns: repeat(4, minmax(0,1fr)); }
-      .chips.cols12{ grid-template-columns: repeat(4, minmax(0,1fr)); }
-      .chips.cols3{ grid-template-columns: repeat(3, minmax(0,1fr)); }
+    @media (max-width:420px){
+      .cols7{grid-template-columns:repeat(4, minmax(0,1fr))}
+      .cols9{grid-template-columns:repeat(4, minmax(0,1fr))}
+      .cols12{grid-template-columns:repeat(4, minmax(0,1fr))}
     }
 
     .chip{
@@ -110,14 +122,9 @@
     .chip.ok{border-color:rgba(46,204,113,.55)}
     .chip.bad{border-color:rgba(255,77,77,.55)}
 
-    .days{
-      display:grid;
-      grid-template-columns: repeat(7, minmax(0,1fr));
-      gap:8px;
-    }
-    @media (max-width: 520px){
-      .days{grid-template-columns: repeat(3, minmax(0,1fr))}
-    }
+    .days{display:grid; gap:8px; grid-template-columns:repeat(7, minmax(0,1fr))}
+    @media (max-width:520px){ .days{grid-template-columns:repeat(3, minmax(0,1fr))} }
+
     .daybtn{
       border:1px solid var(--line);
       background:var(--chip);
@@ -154,104 +161,57 @@
     .status.ok{border-color:rgba(46,204,113,.55)}
     .status.bad{border-color:rgba(255,77,77,.55)}
     .mono{font-family:var(--mono)}
-
-    .side .tag{
-      display:inline-block; padding:2px 8px;
-      border-radius:999px; border:1px solid var(--line);
-      background:#0b1220; font-size:12px; color:var(--muted);
-      font-weight:900;
-    }
-    .side .box{
-      border:1px dashed var(--line);
-      border-radius:14px;
-      padding:10px 12px;
-      background:var(--chip);
-      font-family:var(--mono);
-      font-size:13px;
-      color:var(--muted);
-      margin-top:10px;
-    }
-    .kv{display:grid; grid-template-columns:1fr 1fr; gap:10px}
-    @media (max-width: 520px){ .kv{grid-template-columns:1fr} }
   </style>
 </head>
 <body>
   <div class="wrap">
     <header>
       <div>
-        <h1>Doomsday Drill — choisir <span class="mono">K, a, b, c</span> et le doomsday</h1>
-        <div class="sub">K:0..6 · a:0..8 · b:0..11 · c:0..2 · jour: lundi→dimanche</div>
+        <h1>Doomsday Drill</h1>
+        <div class="sub">Choisis K, a, b, c puis le doomsday. Validation + correction en une fois.</div>
       </div>
-      <div class="pills">
-        <span class="pill" id="pillYear">Année: —</span>
-        <span class="pill" id="pillLeap">Bissextile: —</span>
-        <span class="pill" id="pillScore">0 / 0</span>
-      </div>
+      <div class="pill mono" id="pillScore">0 / 0</div>
     </header>
 
-    <div class="grid">
-      <div class="card">
-        <div class="yearBox">
+    <div class="card">
+      <div class="topRow">
+        <div class="yearField">
           <div>
-            <div class="yearLabel">Année à résoudre</div>
-            <div class="yearValue" id="yearValue">—</div>
+            <label>Année</label><br>
+            <input id="yearInput" type="text" readonly value="—" />
           </div>
-          <div class="btns">
-            <button class="primary" id="btnNew">Nouvelle année</button>
-            <button id="btnReset">Reset</button>
-          </div>
+          <div class="pill mono" id="pillYear">—</div>
         </div>
 
-        <div class="sectionTitle"><div>K</div><div class="mini">0..6</div></div>
-        <div class="chips cols7" id="chipsK"></div>
-
-        <div class="sectionTitle"><div>a = ⌊y/12⌋</div><div class="mini">0..8</div></div>
-        <div class="chips cols9" id="chipsA"></div>
-
-        <div class="sectionTitle"><div>b = y mod 12</div><div class="mini">0..11</div></div>
-        <div class="chips cols12" id="chipsB"></div>
-
-        <div class="sectionTitle"><div>c = ⌊b/4⌋</div><div class="mini">0..2</div></div>
-        <div class="chips cols3" id="chipsC"></div>
-
-        <div class="hr"></div>
-
-        <div class="sectionTitle"><div>Doomsday</div><div class="mini">lundi → dimanche</div></div>
-        <div class="days" id="days"></div>
-
-        <div class="btns" style="margin-top:12px">
-          <button class="primary" id="btnCheck">Valider</button>
-          <button id="btnShow">Afficher correction</button>
+        <div class="btns">
+          <button class="primary" id="btnNew">Nouvelle année</button>
+          <button id="btnReset">Reset</button>
         </div>
-
-        <div class="status" id="status"></div>
       </div>
 
-      <div class="card side">
-        <div class="tag">Formules</div>
-        <div class="box" style="line-height:1.45">
-          <span class="mono">C = ⌊année/100⌋</span><br>
-          <span class="mono">K = (5×(C mod 4)+2) mod 7</span><br>
-          <span class="mono">y = année mod 100</span><br>
-          <span class="mono">a = ⌊y/12⌋</span><br>
-          <span class="mono">b = y mod 12</span><br>
-          <span class="mono">c = ⌊b/4⌋</span><br>
-          <span class="mono">D = (a+b+c+K) mod 7</span>
-        </div>
+      <div class="sectionTitle"><div>K</div><div class="mini">0..6</div></div>
+      <div class="chips cols7" id="chipsK"></div>
 
-        <div class="tag" style="margin-top:12px">Infos année</div>
-        <div class="kv">
-          <div class="box" id="boxYear">année = —</div>
-          <div class="box" id="boxCentury">C = —</div>
-          <div class="box" id="boxY">y = —</div>
-          <div class="box" id="boxLeap">bissextile = —</div>
-        </div>
+      <div class="sectionTitle"><div>a</div><div class="mini">0..8</div></div>
+      <div class="chips cols9" id="chipsA"></div>
 
-        <div class="box" style="margin-top:12px">
-          Codage interne : <span class="mono">dimanche=0 … samedi=6</span>.<br>
-          L’UI te fait cliquer <b>lundi→dimanche</b>.
-        </div>
+      <div class="sectionTitle"><div>b</div><div class="mini">0..11</div></div>
+      <div class="chips cols12" id="chipsB"></div>
+
+      <div class="sectionTitle"><div>c</div><div class="mini">0..2</div></div>
+      <div class="chips cols3" id="chipsC"></div>
+
+      <div class="hr"></div>
+
+      <div class="sectionTitle"><div>Doomsday</div><div class="mini">lundi → dimanche</div></div>
+      <div class="days" id="days"></div>
+
+      <div class="btns" style="margin-top:12px">
+        <button class="primary" id="btnCheck">Valider</button>
+        <button id="btnShow">Afficher correction</button>
       </div>
+
+      <div class="status" id="status"></div>
     </div>
   </div>
 
@@ -270,10 +230,6 @@
       {label:"Dim", name:"dimanche", code:0},
     ];
 
-    function isLeapYear(y){
-      return (y % 4 === 0) && (y % 100 !== 0 || y % 400 === 0);
-    }
-
     function computeParts(year){
       const C = Math.floor(year / 100);
       const K = mod(5 * mod(C, 4) + 2, 7);
@@ -282,7 +238,7 @@
       const b = mod(yy, 12);
       const c = Math.floor(b / 4);
       const D = mod(a + b + c + K, 7); // 0..6 (dimanche=0)
-      return { year, C, K, yy, a, b, c, D, leap: isLeapYear(year) };
+      return { year, C, K, yy, a, b, c, D };
     }
 
     // state
@@ -351,17 +307,9 @@
     }
 
     function setPills(){
-      el("pillYear").textContent = `Année: ${current ? current.year : "—"}`;
-      el("pillLeap").textContent = `Bissextile: ${current ? (current.leap ? "oui" : "non") : "—"}`;
       el("pillScore").textContent = `${perfects} / ${attempts}`;
-    }
-
-    function setInfo(){
-      el("yearValue").textContent = current ? current.year : "—";
-      el("boxYear").textContent = `année = ${current ? current.year : "—"}`;
-      el("boxCentury").textContent = `C = ⌊année/100⌋ = ${current ? current.C : "—"}`;
-      el("boxY").textContent = `y = année mod 100 = ${current ? current.yy : "—"}`;
-      el("boxLeap").textContent = `bissextile = ${current ? (current.leap ? "oui" : "non") : "—"}`;
+      el("pillYear").textContent = current ? `Y=${current.year}` : "—";
+      el("yearInput").value = current ? String(current.year) : "—";
     }
 
     function setStatus(kind, html){
@@ -381,7 +329,6 @@
       const year = Math.floor(Math.random() * (max - min + 1)) + min;
       current = computeParts(year);
       setPills();
-      setInfo();
       resetPicks();
     }
 
