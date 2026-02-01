@@ -157,9 +157,6 @@
 
     .locked .chip,
     .locked .daybtn{ pointer-events:none; opacity:.92; }
-
-    .timePill{display:none}
-    .timePill.show{display:inline-flex}
   </style>
 </head>
 <body>
@@ -167,12 +164,9 @@
     <header>
       <div>
         <h1>Doomsday Drill</h1>
-        <div class="sub">Tu peux valider partiellement : réponses non données → orange. Chrono seulement si juste.</div>
+        <div class="sub">Validation partielle : non répondu → orange. Chrono affiché sur le OK si juste.</div>
       </div>
-      <div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end">
-        <div class="pill mono" id="pillScore">0 / 0</div>
-        <div class="pill mono timePill" id="pillTime">⏱ —</div>
-      </div>
+      <div class="pill mono" id="pillScore">0 / 0</div>
     </header>
 
     <div class="card" id="card">
@@ -249,7 +243,7 @@
       const a = Math.floor(y / 12);
       const b = mod(y, 12);
       const c = Math.floor(b / 4);
-      const D = mod(a + b + c + K, 7); // doomsday, 0..6
+      const D = mod(a + b + c + K, 7);
       return { year, K, a, b, c, D };
     }
 
@@ -261,7 +255,6 @@
     let perfects = 0;
     let locked = false;
 
-    // Chrono: start at new date, stop on correct validate (partial accepted -> chrono only if ALL given answers correct AND at least one answer given)
     let startMs = 0;
 
     const picks = {
@@ -273,17 +266,6 @@
     function setScore(){
       el("pillScore").textContent = `${perfects} / ${attempts}`;
     }
-    function showTime(ms){
-      const pill = el("pillTime");
-      pill.classList.add("show");
-      pill.textContent = `⏱ ${(ms/1000).toFixed(2)}s`;
-    }
-    function hideTime(){
-      const pill = el("pillTime");
-      pill.classList.remove("show");
-      pill.textContent = "⏱ —";
-    }
-
     function setLocked(v){
       locked = v;
       el("card").classList.toggle("locked", locked);
@@ -298,8 +280,7 @@
       });
     }
 
-    function resetUI(){
-      clearMarks();
+    function resetButton(){
       const btn = el("btnCheck");
       btn.classList.remove("result-ok","result-bad","result-warn");
       btn.textContent = "Valider";
@@ -359,11 +340,14 @@
       return Object.values(picks).some(v => v !== null);
     }
 
+    // Marking rules:
+    // - answered correct -> green on picked
+    // - answered wrong   -> red on picked AND green on correct
+    // - not answered     -> orange on correct
     function markGroup(containerId, picked, correct){
       const children = [...el(containerId).children];
 
       if(picked === null){
-        // Not answered -> mark correct in orange (miss)
         const c = children.find(x => Number(x.dataset.value) === correct);
         if(c) c.classList.add("miss");
         return { answered:false, correct:true };
@@ -384,6 +368,7 @@
       if(!current || locked) return;
 
       const btn = el("btnCheck");
+
       if(!anyChosen()){
         btn.classList.remove("result-ok","result-bad");
         btn.classList.add("result-warn");
@@ -401,36 +386,38 @@
 
       const sol = current;
 
-      resetUI(); // clears marks + resets validate button appearance
       clearMarks();
+      resetButton();
 
-      const rK = markGroup("chipsK", picks.K, sol.K);
-      const rA = markGroup("chipsA", picks.a, sol.a);
-      const rB = markGroup("chipsB", picks.b, sol.b);
-      const rC = markGroup("chipsC", picks.c, sol.c);
-      const rD = markGroup("daysDoomsday", picks.doomsday, sol.D);
-      const rDay = markGroup("daysDate", picks.dateDay, sol.dateDow);
+      const rK   = markGroup("chipsK",       picks.K,        sol.K);
+      const rA   = markGroup("chipsA",       picks.a,        sol.a);
+      const rB   = markGroup("chipsB",       picks.b,        sol.b);
+      const rC   = markGroup("chipsC",       picks.c,        sol.c);
+      const rD   = markGroup("daysDoomsday", picks.doomsday, sol.D);
+      const rDay = markGroup("daysDate",     picks.dateDay,  sol.dateDow);
 
-      const answeredCount = [rK,rA,rB,rC,rD,rDay].filter(r => r.answered).length;
-      const allAnsweredCorrect = [rK,rA,rB,rC,rD,rDay].filter(r => r.answered).every(r => r.correct);
+      const results = [rK,rA,rB,rC,rD,rDay];
+      const answeredCount = results.filter(r => r.answered).length;
+      const allAnsweredCorrect = results.filter(r => r.answered).every(r => r.correct);
 
-      // "juste" = toutes les réponses fournies sont correctes (même si partiel)
+      // OK partiel = toutes les réponses fournies sont correctes
       const partialOk = allAnsweredCorrect;
 
-      // Score & chrono: seulement si TOUT est répondu ET correct (ou si tu veux chrono aussi en partiel, dis-le)
-      const allProvided = answeredCount === 6;
-      if(partialOk && allProvided){
+      setScore(); // score mis à jour après perfects éventuellement
+
+      if(partialOk){
         perfects++;
         const elapsed = performance.now() - startMs;
-        showTime(elapsed);
+        const sec = (elapsed/1000).toFixed(2);
+        btn.classList.add("result-ok");
+        btn.textContent = `✅ OK · ${sec}s`;
       } else {
-        hideTime();
+        btn.classList.add("result-bad");
+        btn.textContent = "❌ Faux";
       }
-      setScore();
 
-      btn.classList.remove("result-warn");
-      btn.classList.add(partialOk ? "result-ok" : "result-bad");
-      btn.textContent = partialOk ? "✅ OK" : "❌ Faux";
+      // update score now that perfects may have changed
+      setScore();
 
       // figer jusqu'à Nouvelle date
       setLocked(true);
@@ -443,7 +430,7 @@
       const base = computeParts(year);
       const month = Math.floor(Math.random() * 12) + 1;
       const day = Math.floor(Math.random() * daysInMonth(year, month)) + 1;
-      const dow = weekdayCodeUTC(year, month, day); // 0..6
+      const dow = weekdayCodeUTC(year, month, day);
 
       current = {
         ...base,
@@ -455,9 +442,10 @@
       el("dateInput").value = formatDateFR(day, month, year);
 
       setLocked(false);
-      resetUI();
+      clearMarks();
+      resetButton();
       resetSelections();
-      hideTime();
+
       startMs = performance.now();
     }
 
