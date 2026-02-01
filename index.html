@@ -3,51 +3,53 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Drill Doomsday — K a b c D</title>
+  <title>Doomsday Drill — K a b c D</title>
   <style>
     :root{
       --bg:#0b0f14; --card:#121826; --muted:#8aa0b8; --text:#e7eef7;
-      --ok:#2ecc71; --bad:#ff4d4d; --warn:#f1c40f; --line:#223046;
-      --btn:#1f2a3d; --btn2:#223a63;
+      --ok:#2ecc71; --bad:#ff4d4d; --line:#223046;
+      --btn:#1f2a3d; --btn2:#223a63; --chip:#0e1420;
       --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
       --sans: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
     }
     *{box-sizing:border-box}
-    body{margin:0; font-family:var(--sans); background:linear-gradient(180deg,#070a10 0%, var(--bg) 100%); color:var(--text)}
-    .wrap{max-width:980px; margin:0 auto; padding:24px}
-    .top{
-      display:flex; gap:12px; flex-wrap:wrap; align-items:center; justify-content:space-between;
-      margin-bottom:14px
+    body{
+      margin:0; font-family:var(--sans);
+      background:linear-gradient(180deg,#070a10 0%, var(--bg) 100%);
+      color:var(--text);
+      -webkit-tap-highlight-color: transparent;
     }
-    h1{font-size:20px; margin:0}
-    .sub{color:var(--muted); font-size:13px; margin-top:4px}
-    .grid{
-      display:grid; gap:14px;
-      grid-template-columns: 1.1fr 0.9fr;
+    .wrap{max-width:980px; margin:0 auto; padding:14px}
+    header{display:flex; gap:10px; flex-wrap:wrap; justify-content:space-between; align-items:flex-end; margin-bottom:10px}
+    h1{font-size:16px; margin:0}
+    .sub{color:var(--muted); font-size:12px; margin-top:4px}
+    .pills{display:flex; gap:8px; flex-wrap:wrap}
+    .pill{
+      display:inline-flex; gap:8px; align-items:center;
+      padding:7px 10px; border:1px solid var(--line);
+      border-radius:999px; font-family:var(--mono);
+      font-size:12px; color:var(--muted); background:var(--chip);
     }
-    @media (max-width: 900px){ .grid{grid-template-columns:1fr} }
+    .grid{display:grid; gap:12px; grid-template-columns:1fr 0.9fr}
+    @media (max-width: 860px){ .grid{grid-template-columns:1fr} }
+
     .card{
-      background:rgba(18,24,38,.85);
+      background:rgba(18,24,38,.88);
       border:1px solid var(--line);
       border-radius:16px;
-      padding:16px;
-      box-shadow: 0 10px 30px rgba(0,0,0,.35);
+      padding:14px;
+      box-shadow:0 10px 30px rgba(0,0,0,.35);
     }
-    .row{display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end}
-    label{display:block; font-size:12px; color:var(--muted); margin-bottom:6px}
-    input[type="number"], input[type="text"]{
-      width:100%;
-      padding:10px 12px;
-      border-radius:12px;
-      border:1px solid var(--line);
-      background:#0e1420;
-      color:var(--text);
-      font-family: var(--mono);
-      font-size:14px;
-      outline:none;
+
+    .yearBox{
+      display:flex; justify-content:space-between; align-items:center; gap:10px;
+      padding:12px; border:1px solid var(--line);
+      border-radius:14px; background:var(--chip);
+      margin-bottom:12px;
     }
-    input[type="number"]:focus, input[type="text"]:focus{border-color:#335b9b}
-    .field{flex:1; min-width:140px}
+    .yearLabel{color:var(--muted); font-size:12px}
+    .yearValue{font-family:var(--mono); font-size:22px; font-weight:900; letter-spacing:.5px}
+
     .btns{display:flex; gap:10px; flex-wrap:wrap}
     button{
       border:1px solid var(--line);
@@ -56,201 +58,217 @@
       padding:10px 12px;
       border-radius:12px;
       cursor:pointer;
-      font-weight:600;
+      font-weight:800;
+      font-size:14px;
+      min-height:44px;
     }
     button.primary{background:var(--btn2); border-color:#2f4f86}
     button:active{transform:translateY(1px)}
-    .pill{
-      display:inline-flex; gap:8px; align-items:center;
-      padding:7px 10px;
+
+    .sectionTitle{
+      display:flex; justify-content:space-between; align-items:flex-end;
+      margin:10px 0 8px 0;
+      font-weight:900; font-size:14px;
+    }
+    .mini{font-size:12px; color:var(--muted); font-weight:700}
+    .chips{
+      display:grid;
+      gap:8px;
+    }
+    .chips.cols7{ grid-template-columns: repeat(7, minmax(0,1fr)); }
+    .chips.cols9{ grid-template-columns: repeat(9, minmax(0,1fr)); }
+    .chips.cols12{ grid-template-columns: repeat(12, minmax(0,1fr)); }
+    .chips.cols3{ grid-template-columns: repeat(3, minmax(0,1fr)); }
+
+    @media (max-width: 520px){
+      .chips.cols12{ grid-template-columns: repeat(6, minmax(0,1fr)); }
+      .chips.cols9{ grid-template-columns: repeat(5, minmax(0,1fr)); }
+    }
+    @media (max-width: 420px){
+      .chips.cols7{ grid-template-columns: repeat(4, minmax(0,1fr)); }
+      .chips.cols9{ grid-template-columns: repeat(4, minmax(0,1fr)); }
+      .chips.cols12{ grid-template-columns: repeat(4, minmax(0,1fr)); }
+      .chips.cols3{ grid-template-columns: repeat(3, minmax(0,1fr)); }
+    }
+
+    .chip{
       border:1px solid var(--line);
-      border-radius:999px;
+      background:var(--chip);
+      border-radius:14px;
+      min-height:44px;
+      display:flex; align-items:center; justify-content:center;
       font-family:var(--mono);
-      font-size:12px;
-      color:var(--muted);
-      background:#0e1420;
+      font-weight:900;
+      cursor:pointer;
+      user-select:none;
     }
-    .mono{font-family:var(--mono)}
-    .muted{color:var(--muted)}
-    .hr{height:1px; background:var(--line); margin:14px 0}
-    .twoCol{
-      display:grid; gap:12px;
-      grid-template-columns: repeat(5, minmax(0, 1fr));
+    .chip[data-selected="true"]{
+      outline:2px solid rgba(90,140,220,.75);
+      border-color:#2f4f86;
+      background:#0b1426;
     }
-    @media (max-width: 900px){ .twoCol{grid-template-columns:repeat(2, minmax(0, 1fr))} }
-    .hint{
-      font-size:13px; color:var(--muted); line-height:1.35;
+    .chip.ok{border-color:rgba(46,204,113,.55)}
+    .chip.bad{border-color:rgba(255,77,77,.55)}
+
+    .days{
+      display:grid;
+      grid-template-columns: repeat(7, minmax(0,1fr));
+      gap:8px;
     }
+    @media (max-width: 520px){
+      .days{grid-template-columns: repeat(3, minmax(0,1fr))}
+    }
+    .daybtn{
+      border:1px solid var(--line);
+      background:var(--chip);
+      border-radius:14px;
+      min-height:44px;
+      padding:10px 8px;
+      text-align:center;
+      cursor:pointer;
+      user-select:none;
+      font-weight:900;
+      font-size:13px;
+    }
+    .daybtn small{display:block; color:var(--muted); font-weight:800; margin-top:2px}
+    .daybtn[data-selected="true"]{
+      outline:2px solid rgba(90,140,220,.75);
+      border-color:#2f4f86;
+      background:#0b1426;
+    }
+    .daybtn.ok{border-color:rgba(46,204,113,.55)}
+    .daybtn.bad{border-color:rgba(255,77,77,.55)}
+
+    .hr{height:1px; background:var(--line); margin:12px 0}
+
     .status{
-      margin-top:10px;
+      margin-top:12px;
       border-radius:14px;
       padding:10px 12px;
       border:1px solid var(--line);
-      background:#0e1420;
+      background:var(--chip);
       font-size:13px;
       line-height:1.35;
+      display:none;
     }
-    .ok{border-color:rgba(46,204,113,.55)}
-    .bad{border-color:rgba(255,77,77,.55)}
-    .warn{border-color:rgba(241,196,15,.55)}
-    .kpi{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:10px;
-      margin-top:10px;
+    .status.ok{border-color:rgba(46,204,113,.55)}
+    .status.bad{border-color:rgba(255,77,77,.55)}
+    .mono{font-family:var(--mono)}
+
+    .side .tag{
+      display:inline-block; padding:2px 8px;
+      border-radius:999px; border:1px solid var(--line);
+      background:#0b1220; font-size:12px; color:var(--muted);
+      font-weight:900;
     }
-    @media (max-width: 700px){ .kpi{grid-template-columns:1fr} }
-    .kpi .box{
+    .side .box{
       border:1px dashed var(--line);
       border-radius:14px;
       padding:10px 12px;
-      background:#0e1420;
+      background:var(--chip);
       font-family:var(--mono);
       font-size:13px;
       color:var(--muted);
+      margin-top:10px;
     }
-    .tag{display:inline-block; padding:2px 8px; border-radius:999px; border:1px solid var(--line); background:#0b1220; font-size:12px; color:var(--muted)}
-    .small{font-size:12px}
-    .right{display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:flex-end}
+    .kv{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+    @media (max-width: 520px){ .kv{grid-template-columns:1fr} }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <div class="top">
+    <header>
       <div>
-        <h1>Drill Doomsday (Grégorien) — trouver <span class="mono">K, a, b, c, D</span></h1>
-        <div class="sub">Saisie tes valeurs, puis “Vérifier”. Codes : dimanche=0 … samedi=6.</div>
+        <h1>Doomsday Drill — choisir <span class="mono">K, a, b, c</span> et le doomsday</h1>
+        <div class="sub">K:0..6 · a:0..8 · b:0..11 · c:0..2 · jour: lundi→dimanche</div>
       </div>
-      <div class="right">
+      <div class="pills">
         <span class="pill" id="pillYear">Année: —</span>
         <span class="pill" id="pillLeap">Bissextile: —</span>
+        <span class="pill" id="pillScore">0 / 0</span>
       </div>
-    </div>
+    </header>
 
     <div class="grid">
-      <!-- Left -->
       <div class="card">
-        <div class="row">
-          <div class="field">
-            <label for="yearInput">Année (ou laisse vide et clique “Nouvelle année”)</label>
-            <input id="yearInput" type="number" inputmode="numeric" placeholder="ex: 2026" />
+        <div class="yearBox">
+          <div>
+            <div class="yearLabel">Année à résoudre</div>
+            <div class="yearValue" id="yearValue">—</div>
           </div>
           <div class="btns">
             <button class="primary" id="btnNew">Nouvelle année</button>
-            <button id="btnUse">Utiliser l’année saisie</button>
+            <button id="btnReset">Reset</button>
           </div>
         </div>
+
+        <div class="sectionTitle"><div>K</div><div class="mini">0..6</div></div>
+        <div class="chips cols7" id="chipsK"></div>
+
+        <div class="sectionTitle"><div>a = ⌊y/12⌋</div><div class="mini">0..8</div></div>
+        <div class="chips cols9" id="chipsA"></div>
+
+        <div class="sectionTitle"><div>b = y mod 12</div><div class="mini">0..11</div></div>
+        <div class="chips cols12" id="chipsB"></div>
+
+        <div class="sectionTitle"><div>c = ⌊b/4⌋</div><div class="mini">0..2</div></div>
+        <div class="chips cols3" id="chipsC"></div>
 
         <div class="hr"></div>
 
-        <div class="hint">
-          <div><span class="tag">Étapes</span></div>
-          <div class="mono small" style="margin-top:8px">
-            C = ⌊année/100⌋<br/>
-            K = (5×(C mod 4) + 2) mod 7<br/>
-            y = année mod 100<br/>
-            a = ⌊y/12⌋ &nbsp;&nbsp; b = y mod 12 &nbsp;&nbsp; c = ⌊b/4⌋<br/>
-            D = (a + b + c + K) mod 7
-          </div>
+        <div class="sectionTitle"><div>Doomsday</div><div class="mini">lundi → dimanche</div></div>
+        <div class="days" id="days"></div>
+
+        <div class="btns" style="margin-top:12px">
+          <button class="primary" id="btnCheck">Valider</button>
+          <button id="btnShow">Afficher correction</button>
         </div>
 
-        <div class="hr"></div>
-
-        <div class="twoCol">
-          <div class="field">
-            <label for="inK">K</label>
-            <input id="inK" type="number" placeholder="0..6" />
-          </div>
-          <div class="field">
-            <label for="ina">a</label>
-            <input id="ina" type="number" placeholder="entier" />
-          </div>
-          <div class="field">
-            <label for="inb">b</label>
-            <input id="inb" type="number" placeholder="0..11" />
-          </div>
-          <div class="field">
-            <label for="inc">c</label>
-            <input id="inc" type="number" placeholder="entier" />
-          </div>
-          <div class="field">
-            <label for="inD">D (doomsday)</label>
-            <input id="inD" type="number" placeholder="0..6" />
-          </div>
-        </div>
-
-        <div class="row" style="margin-top:12px; justify-content:space-between">
-          <div class="btns">
-            <button class="primary" id="btnCheck">Vérifier</button>
-            <button id="btnShow">Afficher la solution</button>
-            <button id="btnClear">Effacer saisies</button>
-          </div>
-          <div class="pill mono" id="pillScore">0 / 0</div>
-        </div>
-
-        <div id="status" class="status warn" style="display:none"></div>
+        <div class="status" id="status"></div>
       </div>
 
-      <!-- Right -->
-      <div class="card">
-        <div class="row" style="justify-content:space-between">
-          <div>
-            <div class="mono" style="font-size:16px; font-weight:700">Détails de l’année</div>
-            <div class="muted small" style="margin-top:4px">Ici tu vois ce que l’appli utilise (sans te donner D tant que tu ne demandes pas).</div>
-          </div>
+      <div class="card side">
+        <div class="tag">Formules</div>
+        <div class="box" style="line-height:1.45">
+          <span class="mono">C = ⌊année/100⌋</span><br>
+          <span class="mono">K = (5×(C mod 4)+2) mod 7</span><br>
+          <span class="mono">y = année mod 100</span><br>
+          <span class="mono">a = ⌊y/12⌋</span><br>
+          <span class="mono">b = y mod 12</span><br>
+          <span class="mono">c = ⌊b/4⌋</span><br>
+          <span class="mono">D = (a+b+c+K) mod 7</span>
         </div>
 
-        <div class="kpi">
+        <div class="tag" style="margin-top:12px">Infos année</div>
+        <div class="kv">
           <div class="box" id="boxYear">année = —</div>
           <div class="box" id="boxCentury">C = —</div>
           <div class="box" id="boxY">y = —</div>
           <div class="box" id="boxLeap">bissextile = —</div>
         </div>
 
-        <div class="hr"></div>
-
-        <div class="hint">
-          <div><span class="tag">Contrôle rapide</span></div>
-          <div style="margin-top:8px">
-            <div class="muted">Repère siècle (1900/2000/2100…)</div>
-            <div class="mono small" style="margin-top:6px">
-              Pour 2000–2099 : K = 2 (car C mod 4 = 0)<br/>
-              Pour 2100–2199 : K = 0 (car C mod 4 = 1)<br/>
-              Pour 1800–1899 : K = 5 (car C mod 4 = 2)<br/>
-              Pour 1900–1999 : K = 3 (car C mod 4 = 3)
-            </div>
-          </div>
-        </div>
-
-        <div class="hr"></div>
-
-        <div class="hint">
-          <div><span class="tag">Bissextile (grégorien)</span></div>
-          <div style="margin-top:8px" class="small">
-            Une année est bissextile si divisible par 4, sauf les siècles non divisibles par 400.
-            <div class="mono small" style="margin-top:6px">
-              (y % 4 == 0) && (y % 100 != 0 || y % 400 == 0)
-            </div>
-          </div>
-        </div>
-
-        <div class="hr"></div>
-
-        <div class="status" id="solutionBox" style="display:none">
-          <div class="mono" style="font-weight:700; margin-bottom:6px">Solution</div>
-          <div class="mono small" id="solText">—</div>
+        <div class="box" style="margin-top:12px">
+          Codage interne : <span class="mono">dimanche=0 … samedi=6</span>.<br>
+          L’UI te fait cliquer <b>lundi→dimanche</b>.
         </div>
       </div>
     </div>
   </div>
 
   <script>
-    // ======= Core math =======
-    const dayNames = ["dimanche","lundi","mardi","mercredi","jeudi","vendredi","samedi"];
+    const el = (id) => document.getElementById(id);
+    const mod = (n, m) => ((n % m) + m) % m;
 
-    function mod(n, m){
-      return ((n % m) + m) % m;
-    }
+    const dayNamesFR = ["dimanche","lundi","mardi","mercredi","jeudi","vendredi","samedi"];
+    const uiDays = [
+      {label:"Lun", name:"lundi", code:1},
+      {label:"Mar", name:"mardi", code:2},
+      {label:"Mer", name:"mercredi", code:3},
+      {label:"Jeu", name:"jeudi", code:4},
+      {label:"Ven", name:"vendredi", code:5},
+      {label:"Sam", name:"samedi", code:6},
+      {label:"Dim", name:"dimanche", code:0},
+    ];
 
     function isLeapYear(y){
       return (y % 4 === 0) && (y % 100 !== 0 || y % 400 === 0);
@@ -263,27 +281,74 @@
       const a = Math.floor(yy / 12);
       const b = mod(yy, 12);
       const c = Math.floor(b / 4);
-      const D = mod(a + b + c + K, 7);
+      const D = mod(a + b + c + K, 7); // 0..6 (dimanche=0)
       return { year, C, K, yy, a, b, c, D, leap: isLeapYear(year) };
     }
 
-    // ======= UI state =======
+    // state
     let current = null;
     let attempts = 0;
     let perfects = 0;
+    const picks = { K:null, a:null, b:null, c:null, D:null };
 
-    const el = (id) => document.getElementById(id);
+    function buildChipsRange(containerId, key, from, to){
+      const wrap = el(containerId);
+      wrap.innerHTML = "";
+      for(let v=from; v<=to; v++){
+        const d = document.createElement("div");
+        d.className = "chip";
+        d.textContent = v;
+        d.dataset.value = String(v);
+        d.dataset.selected = "false";
+        d.addEventListener("click", () => selectChip(containerId, key, v));
+        wrap.appendChild(d);
+      }
+    }
 
-    const yearInput = el("yearInput");
-    const inK = el("inK");
-    const ina = el("ina");
-    const inb = el("inb");
-    const inc = el("inc");
-    const inD = el("inD");
+    function buildDays(){
+      const wrap = el("days");
+      wrap.innerHTML = "";
+      uiDays.forEach(dy => {
+        const b = document.createElement("div");
+        b.className = "daybtn";
+        b.dataset.value = String(dy.code);
+        b.dataset.selected = "false";
+        b.innerHTML = `${dy.label}<small>${dy.name}</small>`;
+        b.addEventListener("click", () => selectDay(dy.code));
+        wrap.appendChild(b);
+      });
+    }
 
-    const status = el("status");
-    const solBox = el("solutionBox");
-    const solText = el("solText");
+    function selectChip(containerId, key, value){
+      picks[key] = value;
+      const wrap = el(containerId);
+      [...wrap.children].forEach(ch => {
+        ch.dataset.selected = (Number(ch.dataset.value) === value) ? "true" : "false";
+        ch.classList.remove("ok","bad");
+      });
+      clearStatus();
+    }
+
+    function selectDay(code){
+      picks.D = code;
+      const wrap = el("days");
+      [...wrap.children].forEach(btn => {
+        btn.dataset.selected = (Number(btn.dataset.value) === code) ? "true" : "false";
+        btn.classList.remove("ok","bad");
+      });
+      clearStatus();
+    }
+
+    function resetPicks(){
+      for(const k of Object.keys(picks)) picks[k] = null;
+      ["chipsK","chipsA","chipsB","chipsC"].forEach(id => {
+        const wrap = el(id);
+        [...wrap.children].forEach(ch => { ch.dataset.selected="false"; ch.classList.remove("ok","bad"); });
+      });
+      const dayWrap = el("days");
+      [...dayWrap.children].forEach(btn => { btn.dataset.selected="false"; btn.classList.remove("ok","bad"); });
+      clearStatus();
+    }
 
     function setPills(){
       el("pillYear").textContent = `Année: ${current ? current.year : "—"}`;
@@ -291,7 +356,8 @@
       el("pillScore").textContent = `${perfects} / ${attempts}`;
     }
 
-    function setInfoBoxes(){
+    function setInfo(){
+      el("yearValue").textContent = current ? current.year : "—";
       el("boxYear").textContent = `année = ${current ? current.year : "—"}`;
       el("boxCentury").textContent = `C = ⌊année/100⌋ = ${current ? current.C : "—"}`;
       el("boxY").textContent = `y = année mod 100 = ${current ? current.yy : "—"}`;
@@ -299,147 +365,118 @@
     }
 
     function setStatus(kind, html){
-      status.className = "status " + kind;
-      status.innerHTML = html;
-      status.style.display = "block";
+      const st = el("status");
+      st.className = "status " + kind;
+      st.innerHTML = html;
+      st.style.display = "block";
     }
-
     function clearStatus(){
-      status.style.display = "none";
-      status.innerHTML = "";
-    }
-
-    function clearInputs(){
-      [inK, ina, inb, inc, inD].forEach(x => x.value = "");
-      solBox.style.display = "none";
-      solText.textContent = "—";
-      clearStatus();
-      inK.focus();
+      const st = el("status");
+      st.style.display = "none";
+      st.innerHTML = "";
     }
 
     function chooseRandomYear(){
-      // Grégorien utilisable dès 1583 (après la réforme). Tu peux élargir si tu veux.
-      const min = 1583;
-      const max = 2400;
+      const min = 1583, max = 2400;
       const year = Math.floor(Math.random() * (max - min + 1)) + min;
       current = computeParts(year);
       setPills();
-      setInfoBoxes();
-      clearInputs();
+      setInfo();
+      resetPicks();
     }
 
-    function useYearFromInput(){
-      const v = yearInput.value.trim();
-      if(!v){
-        setStatus("warn", "Entre une année (ex: <span class='mono'>2026</span>) ou clique <b>Nouvelle année</b>.");
-        return;
-      }
-      const year = Number(v);
-      if(!Number.isFinite(year) || year < 0){
-        setStatus("bad", "Année invalide. Mets un entier positif.");
-        return;
-      }
-      current = computeParts(year);
-      setPills();
-      setInfoBoxes();
-      clearInputs();
+    function allChosen(){
+      return Object.values(picks).every(v => v !== null);
     }
 
-    function parseIntOrNaN(x){
-      const v = x.value.trim();
-      if(v === "") return NaN;
-      return Number(v);
+    function colorize(containerId, correct, picked){
+      const wrap = el(containerId);
+      [...wrap.children].forEach(ch => {
+        const v = Number(ch.dataset.value);
+        if(v === picked) ch.classList.add(v === correct ? "ok" : "bad");
+      });
     }
 
-    function check(){
-      if(!current){
-        setStatus("warn", "Choisis d’abord une année (bouton <b>Nouvelle année</b> ou <b>Utiliser l’année saisie</b>).");
+    function colorizeDays(correct, picked){
+      const wrap = el("days");
+      [...wrap.children].forEach(btn => {
+        const v = Number(btn.dataset.value);
+        if(v === picked) btn.classList.add(v === correct ? "ok" : "bad");
+      });
+    }
+
+    function validate(){
+      if(!current) return;
+
+      if(!allChosen()){
+        setStatus("bad", "Choisis <b>K, a, b, c</b> et un <b>jour</b>.");
         return;
       }
-
-      const u = {
-        K: parseIntOrNaN(inK),
-        a: parseIntOrNaN(ina),
-        b: parseIntOrNaN(inb),
-        c: parseIntOrNaN(inc),
-        D: parseIntOrNaN(inD)
-      };
-
-      const missing = Object.entries(u).filter(([k,v]) => !Number.isFinite(v)).map(([k]) => k);
-      if(missing.length){
-        setStatus("warn", `Champs manquants : <span class="mono">${missing.join(", ")}</span>.`);
-        return;
-      }
-
-      const ok = {
-        K: u.K === current.K,
-        a: u.a === current.a,
-        b: u.b === current.b,
-        c: u.c === current.c,
-        D: u.D === current.D
-      };
 
       attempts++;
+
+      const sol = current;
+      const ok = {
+        K: picks.K === sol.K,
+        a: picks.a === sol.a,
+        b: picks.b === sol.b,
+        c: picks.c === sol.c,
+        D: picks.D === sol.D
+      };
+
       const allOk = Object.values(ok).every(Boolean);
       if(allOk) perfects++;
 
       setPills();
 
-      const parts = ["K","a","b","c","D"].map(k => {
-        const flag = ok[k] ? "✅" : "❌";
-        const exp = ok[k]
-          ? `<span class="mono">${k}=${u[k]}</span>`
-          : `<span class="mono">${k}=${u[k]}</span> → <span class="mono">${k}=${current[k]}</span>`;
-        return `${flag} ${exp}`;
-      }).join("<br/>");
-
-      const dName = dayNames[current.D];
-      const extra = `<br/><br/>Doomsday : <span class="mono">${current.D}</span> = <b>${dName}</b>.`;
-
-      setStatus(allOk ? "ok" : "bad", parts + extra);
-
-      // Si tout est bon, enchaine automatiquement sur une nouvelle année (option pratique)
-      // Décommente si tu veux:
-      // if(allOk) setTimeout(chooseRandomYear, 450);
-    }
-
-    function showSolution(){
-      if(!current){
-        setStatus("warn", "Choisis d’abord une année.");
-        return;
+      const lines = [];
+      for(const k of ["K","a","b","c"]){
+        lines.push(ok[k]
+          ? `✅ <span class="mono">${k}=${picks[k]}</span>`
+          : `❌ <span class="mono">${k}=${picks[k]}</span> → <span class="mono">${k}=${sol[k]}</span>`);
       }
-      const { year, C, K, yy, a, b, c, D, leap } = current;
-      solText.innerHTML =
-        `année = ${year}<br/>` +
-        `C = ⌊${year}/100⌋ = ${C}<br/>` +
-        `K = (5×(${C} mod 4) + 2) mod 7 = ${K}<br/>` +
-        `y = ${year} mod 100 = ${yy}<br/>` +
-        `a = ⌊${yy}/12⌋ = ${a}<br/>` +
-        `b = ${yy} mod 12 = ${b}<br/>` +
-        `c = ⌊${b}/4⌋ = ${c}<br/>` +
-        `D = (${a}+${b}+${c}+${K}) mod 7 = ${D} = ${dayNames[D]}<br/>` +
-        `bissextile = ${leap ? "oui" : "non"}`;
-      solBox.style.display = "block";
+      lines.push(ok.D
+        ? `✅ <b>Doomsday</b> : <span class="mono">${dayNamesFR[sol.D]}</span>`
+        : `❌ <b>Doomsday</b> : <span class="mono">${dayNamesFR[picks.D]}</span> → <span class="mono">${dayNamesFR[sol.D]}</span>`);
+
+      setStatus(allOk ? "ok" : "bad", lines.join("<br/>"));
+
+      // feedback colors
+      colorize("chipsK", sol.K, picks.K);
+      colorize("chipsA", sol.a, picks.a);
+      colorize("chipsB", sol.b, picks.b);
+      colorize("chipsC", sol.c, picks.c);
+      colorizeDays(sol.D, picks.D);
+
+      // Auto-next on perfect (toggle here)
+      const AUTO_NEXT_ON_PERFECT = true;
+      if(allOk && AUTO_NEXT_ON_PERFECT){
+        setTimeout(chooseRandomYear, 450);
+      }
     }
 
-    // ======= Events =======
+    function showCorrection(){
+      if(!current) return;
+      const sol = current;
+      setStatus("ok",
+        `<b>Correction</b><br>` +
+        `<span class="mono">K=${sol.K} a=${sol.a} b=${sol.b} c=${sol.c}</span><br>` +
+        `Doomsday : <span class="mono">${dayNamesFR[sol.D]}</span>`
+      );
+    }
+
+    // init
+    buildChipsRange("chipsK","K",0,6);
+    buildChipsRange("chipsA","a",0,8);
+    buildChipsRange("chipsB","b",0,11);
+    buildChipsRange("chipsC","c",0,2);
+    buildDays();
+
     el("btnNew").addEventListener("click", chooseRandomYear);
-    el("btnUse").addEventListener("click", useYearFromInput);
-    el("btnCheck").addEventListener("click", check);
-    el("btnShow").addEventListener("click", showSolution);
-    el("btnClear").addEventListener("click", clearInputs);
+    el("btnReset").addEventListener("click", resetPicks);
+    el("btnCheck").addEventListener("click", validate);
+    el("btnShow").addEventListener("click", showCorrection);
 
-    // Enter to check
-    [yearInput, inK, ina, inb, inc, inD].forEach(inp => {
-      inp.addEventListener("keydown", (e) => {
-        if(e.key === "Enter"){
-          if(inp === yearInput) useYearFromInput();
-          else check();
-        }
-      });
-    });
-
-    // Start with a random year
     chooseRandomYear();
   </script>
 </body>
