@@ -7,8 +7,8 @@
   <style>
     :root{
       --bg:#0b0f14; --card:#121826; --muted:#8aa0b8; --text:#e7eef7;
-      --ok:#2ecc71; --bad:#ff4d4d; --line:#223046;
-      --btn:#1f2a3d; --btn2:#223a63; --chip:#0e1420;
+      --ok:#2ecc71; --bad:#ff4d4d; --warn:#f1c40f;
+      --line:#223046; --btn:#1f2a3d; --btn2:#223a63; --chip:#0e1420;
       --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
       --sans: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
     }
@@ -20,17 +20,19 @@
       -webkit-tap-highlight-color: transparent;
     }
     .wrap{max-width:860px; margin:0 auto; padding:14px}
-    header{display:flex; gap:10px; flex-wrap:wrap; justify-content:space-between; align-items:flex-end; margin-bottom:10px}
+    header{
+      display:flex; gap:10px; flex-wrap:wrap;
+      justify-content:space-between; align-items:flex-end;
+      margin-bottom:10px;
+    }
     h1{font-size:16px; margin:0}
     .sub{color:var(--muted); font-size:12px; margin-top:4px}
-
     .pill{
       display:inline-flex; gap:8px; align-items:center;
       padding:7px 10px; border:1px solid var(--line);
       border-radius:999px; font-family:var(--mono);
       font-size:12px; color:var(--muted); background:var(--chip);
     }
-
     .card{
       background:rgba(18,24,38,.88);
       border:1px solid var(--line);
@@ -43,13 +45,11 @@
       display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between;
       margin-bottom:10px;
     }
-
     .yearField{
       display:flex; gap:10px; align-items:center; flex-wrap:wrap;
       padding:10px 12px; border:1px solid var(--line);
       border-radius:14px; background:var(--chip);
-      flex:1;
-      min-width:260px;
+      flex:1; min-width:260px;
     }
     label{font-size:12px; color:var(--muted)}
     input{
@@ -76,9 +76,13 @@
       font-weight:900;
       font-size:14px;
       min-height:44px;
+      user-select:none;
     }
     button.primary{background:var(--btn2); border-color:#2f4f86}
     button:active{transform:translateY(1px)}
+    button.result-ok{background:rgba(46,204,113,.18); border-color:rgba(46,204,113,.55)}
+    button.result-bad{background:rgba(255,77,77,.16); border-color:rgba(255,77,77,.55)}
+    button.result-warn{background:rgba(241,196,15,.10); border-color:rgba(241,196,15,.55)}
 
     .sectionTitle{
       display:flex; justify-content:space-between; align-items:flex-end;
@@ -92,6 +96,7 @@
     .cols9{grid-template-columns:repeat(9, minmax(0,1fr))}
     .cols12{grid-template-columns:repeat(12, minmax(0,1fr))}
     .cols3{grid-template-columns:repeat(3, minmax(0,1fr))}
+
     @media (max-width:520px){
       .cols12{grid-template-columns:repeat(6, minmax(0,1fr))}
       .cols9{grid-template-columns:repeat(5, minmax(0,1fr))}
@@ -118,8 +123,14 @@
       border-color:#2f4f86;
       background:#0b1426;
     }
-    .chip.ok{border-color:rgba(46,204,113,.55)}
-    .chip.bad{border-color:rgba(255,77,77,.55)}
+    .chip.ok{
+      border-color:rgba(46,204,113,.65);
+      outline:2px solid rgba(46,204,113,.35);
+    }
+    .chip.bad{
+      border-color:rgba(255,77,77,.65);
+      outline:2px solid rgba(255,77,77,.30);
+    }
 
     .days{display:grid; gap:8px; grid-template-columns:repeat(7, minmax(0,1fr))}
     @media (max-width:520px){ .days{grid-template-columns:repeat(3, minmax(0,1fr))} }
@@ -142,24 +153,24 @@
       border-color:#2f4f86;
       background:#0b1426;
     }
-    .daybtn.ok{border-color:rgba(46,204,113,.55)}
-    .daybtn.bad{border-color:rgba(255,77,77,.55)}
+    .daybtn.ok{border-color:rgba(46,204,113,.65); outline:2px solid rgba(46,204,113,.30)}
+    .daybtn.bad{border-color:rgba(255,77,77,.65); outline:2px solid rgba(255,77,77,.25)}
 
     .hr{height:1px; background:var(--line); margin:12px 0}
 
-    .status{
-      margin-top:12px;
-      border-radius:14px;
-      padding:10px 12px;
-      border:1px solid var(--line);
-      background:var(--chip);
-      font-size:13px;
-      line-height:1.35;
+    /* Lock after validate (keep correction until Nouvelle année) */
+    .locked .chip,
+    .locked .daybtn{
+      pointer-events:none;
+      opacity:.92;
+    }
+    .lockedHint{
+      margin-top:10px;
+      color:var(--muted);
+      font-size:12px;
       display:none;
     }
-    .status.ok{border-color:rgba(46,204,113,.55)}
-    .status.bad{border-color:rgba(255,77,77,.55)}
-    .mono{font-family:var(--mono)}
+    .locked .lockedHint{display:block}
   </style>
 </head>
 <body>
@@ -167,23 +178,22 @@
     <header>
       <div>
         <h1>Doomsday Drill</h1>
-        <div class="sub">Choisis K, a, b, c puis le doomsday. La correction reste jusqu’à “Nouvelle année”.</div>
+        <div class="sub">Valide → tes choix erronés en rouge, la correction en vert. Ça reste jusqu’à “Nouvelle année”.</div>
       </div>
       <div class="pill mono" id="pillScore">0 / 0</div>
     </header>
 
-    <div class="card">
+    <div class="card" id="card">
       <div class="topRow">
         <div class="yearField">
           <div>
-            <label>Année</label><br>
+            <label>Année</label><br />
             <input id="yearInput" type="text" readonly value="—" />
           </div>
         </div>
 
         <div class="btns">
           <button class="primary" id="btnNew">Nouvelle année</button>
-          <button id="btnReset">Reset</button>
         </div>
       </div>
 
@@ -205,11 +215,10 @@
       <div class="days" id="days"></div>
 
       <div class="btns" style="margin-top:12px">
-        <button class="primary" id="btnCheck">Valider</button>
-        <button id="btnShow">Afficher correction</button>
+        <button id="btnCheck">Valider</button>
       </div>
 
-      <div class="status" id="status"></div>
+      <div class="lockedHint">Correction affichée. Clique <b>Nouvelle année</b> pour continuer.</div>
     </div>
   </div>
 
@@ -217,7 +226,6 @@
     const el = (id) => document.getElementById(id);
     const mod = (n, m) => ((n % m) + m) % m;
 
-    const dayNamesFR = ["dimanche","lundi","mardi","mercredi","jeudi","vendredi","samedi"];
     const uiDays = [
       {label:"Lun", name:"lundi", code:1},
       {label:"Mar", name:"mardi", code:2},
@@ -231,19 +239,68 @@
     function computeParts(year){
       const C = Math.floor(year / 100);
       const K = mod(5 * mod(C, 4) + 2, 7);
-      const yy = mod(year, 100);
-      const a = Math.floor(yy / 12);
-      const b = mod(yy, 12);
+      const y = mod(year, 100);
+      const a = Math.floor(y / 12);
+      const b = mod(y, 12);
       const c = Math.floor(b / 4);
       const D = mod(a + b + c + K, 7); // 0..6 (dimanche=0)
       return { year, K, a, b, c, D };
     }
 
-    // state
     let current = null;
     let attempts = 0;
     let perfects = 0;
+    let locked = false;
+
     const picks = { K:null, a:null, b:null, c:null, D:null };
+
+    function setScore(){
+      el("pillScore").textContent = `${perfects} / ${attempts}`;
+    }
+
+    function setYear(){
+      el("yearInput").value = current ? String(current.year) : "—";
+    }
+
+    function setLocked(v){
+      locked = v;
+      el("card").classList.toggle("locked", locked);
+    }
+
+    function resetVisuals(){
+      // remove ok/bad from all buttons
+      ["chipsK","chipsA","chipsB","chipsC"].forEach(id => {
+        const wrap = el(id);
+        [...wrap.children].forEach(ch => ch.classList.remove("ok","bad"));
+      });
+      [...el("days").children].forEach(btn => btn.classList.remove("ok","bad"));
+
+      // reset validate button state
+      const btn = el("btnCheck");
+      btn.classList.remove("result-ok","result-bad","result-warn");
+      btn.textContent = "Valider";
+    }
+
+    function resetSelections(){
+      for(const k of Object.keys(picks)) picks[k] = null;
+
+      ["chipsK","chipsA","chipsB","chipsC"].forEach(id => {
+        const wrap = el(id);
+        [...wrap.children].forEach(ch => ch.dataset.selected = "false");
+      });
+      [...el("days").children].forEach(btn => btn.dataset.selected = "false");
+    }
+
+    function chooseRandomYear(){
+      const min = 1583, max = 2400;
+      const year = Math.floor(Math.random() * (max - min + 1)) + min;
+      current = computeParts(year);
+
+      setYear();
+      setLocked(false);
+      resetVisuals();
+      resetSelections();
+    }
 
     function buildChipsRange(containerId, key, from, to){
       const wrap = el(containerId);
@@ -254,7 +311,11 @@
         d.textContent = v;
         d.dataset.value = String(v);
         d.dataset.selected = "false";
-        d.addEventListener("click", () => selectChip(containerId, key, v));
+        d.addEventListener("click", () => {
+          if(locked) return;
+          picks[key] = v;
+          [...wrap.children].forEach(ch => ch.dataset.selected = (Number(ch.dataset.value) === v) ? "true" : "false");
+        });
         wrap.appendChild(d);
       }
     }
@@ -268,157 +329,97 @@
         b.dataset.value = String(dy.code);
         b.dataset.selected = "false";
         b.innerHTML = `${dy.label}<small>${dy.name}</small>`;
-        b.addEventListener("click", () => selectDay(dy.code));
+        b.addEventListener("click", () => {
+          if(locked) return;
+          picks.D = dy.code;
+          [...wrap.children].forEach(btn => btn.dataset.selected = (Number(btn.dataset.value) === dy.code) ? "true" : "false");
+        });
         wrap.appendChild(b);
       });
-    }
-
-    function selectChip(containerId, key, value){
-      picks[key] = value;
-      const wrap = el(containerId);
-      [...wrap.children].forEach(ch => {
-        ch.dataset.selected = (Number(ch.dataset.value) === value) ? "true" : "false";
-        ch.classList.remove("ok","bad"); // on enlève la couleur d'évaluation si tu changes
-      });
-      // NOTE: on NE touche PAS à la correction (status) ici.
-    }
-
-    function selectDay(code){
-      picks.D = code;
-      const wrap = el("days");
-      [...wrap.children].forEach(btn => {
-        btn.dataset.selected = (Number(btn.dataset.value) === code) ? "true" : "false";
-        btn.classList.remove("ok","bad");
-      });
-      // NOTE: on NE touche PAS à la correction (status) ici.
-    }
-
-    function resetPicks(){
-      for(const k of Object.keys(picks)) picks[k] = null;
-
-      ["chipsK","chipsA","chipsB","chipsC"].forEach(id => {
-        const wrap = el(id);
-        [...wrap.children].forEach(ch => {
-          ch.dataset.selected="false";
-          ch.classList.remove("ok","bad");
-        });
-      });
-
-      const dayWrap = el("days");
-      [...dayWrap.children].forEach(btn => {
-        btn.dataset.selected="false";
-        btn.classList.remove("ok","bad");
-      });
-
-      // IMPORTANT: on garde la correction affichée (status) comme demandé.
-    }
-
-    function setScore(){
-      el("pillScore").textContent = `${perfects} / ${attempts}`;
-    }
-
-    function setYear(){
-      el("yearInput").value = current ? String(current.year) : "—";
-    }
-
-    function setStatus(kind, html){
-      const st = el("status");
-      st.className = "status " + kind;
-      st.innerHTML = html;
-      st.style.display = "block";
-    }
-    function clearStatus(){
-      const st = el("status");
-      st.style.display = "none";
-      st.innerHTML = "";
-    }
-
-    function chooseRandomYear(){
-      const min = 1583, max = 2400;
-      const year = Math.floor(Math.random() * (max - min + 1)) + min;
-      current = computeParts(year);
-      setYear();
-      resetPicks();
-      clearStatus(); // la correction ne disparaît QUE quand tu changes d'année
     }
 
     function allChosen(){
       return Object.values(picks).every(v => v !== null);
     }
 
-    function colorize(containerId, correct, picked){
+    function markGroup(containerId, picked, correct){
       const wrap = el(containerId);
-      [...wrap.children].forEach(ch => {
-        const v = Number(ch.dataset.value);
-        if(v === picked) ch.classList.add(v === correct ? "ok" : "bad");
-      });
+      const children = [...wrap.children];
+
+      // mark picked
+      if(picked !== null){
+        const p = children.find(x => Number(x.dataset.value) === picked);
+        if(p) p.classList.add(picked === correct ? "ok" : "bad");
+      }
+
+      // mark correct (if different)
+      if(correct !== null && picked !== correct){
+        const c = children.find(x => Number(x.dataset.value) === correct);
+        if(c) c.classList.add("ok");
+      }
     }
 
-    function colorizeDays(correct, picked){
-      const wrap = el("days");
-      [...wrap.children].forEach(btn => {
-        const v = Number(btn.dataset.value);
-        if(v === picked) btn.classList.add(v === correct ? "ok" : "bad");
-      });
+    function markDay(picked, correct){
+      const children = [...el("days").children];
+
+      if(picked !== null){
+        const p = children.find(x => Number(x.dataset.value) === picked);
+        if(p) p.classList.add(picked === correct ? "ok" : "bad");
+      }
+      if(correct !== null && picked !== correct){
+        const c = children.find(x => Number(x.dataset.value) === correct);
+        if(c) c.classList.add("ok");
+      }
     }
 
     function validate(){
-      if(!current) return;
+      if(!current || locked) return;
+
+      const btn = el("btnCheck");
 
       if(!allChosen()){
-        setStatus("bad", "Choisis <b>K, a, b, c</b> et un <b>jour</b>.");
+        btn.classList.remove("result-ok","result-bad");
+        btn.classList.add("result-warn");
+        btn.textContent = "Choisis tout";
+        setTimeout(() => {
+          if(!locked){
+            btn.classList.remove("result-warn");
+            btn.textContent = "Valider";
+          }
+        }, 800);
         return;
       }
 
       attempts++;
 
       const sol = current;
-      const ok = {
-        K: picks.K === sol.K,
-        a: picks.a === sol.a,
-        b: picks.b === sol.b,
-        c: picks.c === sol.c,
-        D: picks.D === sol.D
-      };
+      const ok =
+        picks.K === sol.K &&
+        picks.a === sol.a &&
+        picks.b === sol.b &&
+        picks.c === sol.c &&
+        picks.D === sol.D;
 
-      const allOk = Object.values(ok).every(Boolean);
-      if(allOk) perfects++;
-
+      if(ok) perfects++;
       setScore();
 
-      const lines = [];
-      for(const k of ["K","a","b","c"]){
-        lines.push(ok[k]
-          ? `✅ <span class="mono">${k}=${picks[k]}</span>`
-          : `❌ <span class="mono">${k}=${picks[k]}</span> → <span class="mono">${k}=${sol[k]}</span>`);
-      }
-      lines.push(ok.D
-        ? `✅ <b>Doomsday</b> : <span class="mono">${dayNamesFR[sol.D]}</span>`
-        : `❌ <b>Doomsday</b> : <span class="mono">${dayNamesFR[picks.D]}</span> → <span class="mono">${dayNamesFR[sol.D]}</span>`);
+      // show "correction" via colors only
+      resetVisuals(); // clears any previous result colors (for safety before lock)
+      markGroup("chipsK", picks.K, sol.K);
+      markGroup("chipsA", picks.a, sol.a);
+      markGroup("chipsB", picks.b, sol.b);
+      markGroup("chipsC", picks.c, sol.c);
+      markDay(picks.D, sol.D);
 
-      setStatus(allOk ? "ok" : "bad", lines.join("<br/>"));
+      btn.classList.remove("result-warn");
+      btn.classList.add(ok ? "result-ok" : "result-bad");
+      btn.textContent = ok ? "✅ OK" : "❌ Faux";
 
-      // feedback colors (sur ta sélection)
-      colorize("chipsK", sol.K, picks.K);
-      colorize("chipsA", sol.a, picks.a);
-      colorize("chipsB", sol.b, picks.b);
-      colorize("chipsC", sol.c, picks.c);
-      colorizeDays(sol.D, picks.D);
-
-      // IMPORTANT: pas d'auto-next, sinon la correction disparaît.
+      // lock until Nouvelle année
+      setLocked(true);
     }
 
-    function showCorrection(){
-      if(!current) return;
-      const sol = current;
-      setStatus("ok",
-        `<b>Correction</b><br>` +
-        `<span class="mono">K=${sol.K} a=${sol.a} b=${sol.b} c=${sol.c}</span><br>` +
-        `Doomsday : <span class="mono">${dayNamesFR[sol.D]}</span>`
-      );
-    }
-
-    // init
+    // Init
     buildChipsRange("chipsK","K",0,6);
     buildChipsRange("chipsA","a",0,8);
     buildChipsRange("chipsB","b",0,11);
@@ -426,9 +427,7 @@
     buildDays();
 
     el("btnNew").addEventListener("click", chooseRandomYear);
-    el("btnReset").addEventListener("click", resetPicks);
     el("btnCheck").addEventListener("click", validate);
-    el("btnShow").addEventListener("click", showCorrection);
 
     setScore();
     chooseRandomYear();
