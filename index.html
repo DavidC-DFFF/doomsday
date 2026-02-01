@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Drill Doomsday — K a b c D</title>
+  <style>
+    :root{
+      --bg:#0b0f14; --card:#121826; --muted:#8aa0b8; --text:#e7eef7;
+      --ok:#2ecc71; --bad:#ff4d4d; --warn:#f1c40f; --line:#223046;
+      --btn:#1f2a3d; --btn2:#223a63;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      --sans: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+    *{box-sizing:border-box}
+    body{margin:0; font-family:var(--sans); background:linear-gradient(180deg,#070a10 0%, var(--bg) 100%); color:var(--text)}
+    .wrap{max-width:980px; margin:0 auto; padding:24px}
+    .top{
+      display:flex; gap:12px; flex-wrap:wrap; align-items:center; justify-content:space-between;
+      margin-bottom:14px
+    }
+    h1{font-size:20px; margin:0}
+    .sub{color:var(--muted); font-size:13px; margin-top:4px}
+    .grid{
+      display:grid; gap:14px;
+      grid-template-columns: 1.1fr 0.9fr;
+    }
+    @media (max-width: 900px){ .grid{grid-template-columns:1fr} }
+    .card{
+      background:rgba(18,24,38,.85);
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.35);
+    }
+    .row{display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end}
+    label{display:block; font-size:12px; color:var(--muted); margin-bottom:6px}
+    input[type="number"], input[type="text"]{
+      width:100%;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background:#0e1420;
+      color:var(--text);
+      font-family: var(--mono);
+      font-size:14px;
+      outline:none;
+    }
+    input[type="number"]:focus, input[type="text"]:focus{border-color:#335b9b}
+    .field{flex:1; min-width:140px}
+    .btns{display:flex; gap:10px; flex-wrap:wrap}
+    button{
+      border:1px solid var(--line);
+      background:var(--btn);
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:12px;
+      cursor:pointer;
+      font-weight:600;
+    }
+    button.primary{background:var(--btn2); border-color:#2f4f86}
+    button:active{transform:translateY(1px)}
+    .pill{
+      display:inline-flex; gap:8px; align-items:center;
+      padding:7px 10px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      font-family:var(--mono);
+      font-size:12px;
+      color:var(--muted);
+      background:#0e1420;
+    }
+    .mono{font-family:var(--mono)}
+    .muted{color:var(--muted)}
+    .hr{height:1px; background:var(--line); margin:14px 0}
+    .twoCol{
+      display:grid; gap:12px;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+    @media (max-width: 900px){ .twoCol{grid-template-columns:repeat(2, minmax(0, 1fr))} }
+    .hint{
+      font-size:13px; color:var(--muted); line-height:1.35;
+    }
+    .status{
+      margin-top:10px;
+      border-radius:14px;
+      padding:10px 12px;
+      border:1px solid var(--line);
+      background:#0e1420;
+      font-size:13px;
+      line-height:1.35;
+    }
+    .ok{border-color:rgba(46,204,113,.55)}
+    .bad{border-color:rgba(255,77,77,.55)}
+    .warn{border-color:rgba(241,196,15,.55)}
+    .kpi{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-top:10px;
+    }
+    @media (max-width: 700px){ .kpi{grid-template-columns:1fr} }
+    .kpi .box{
+      border:1px dashed var(--line);
+      border-radius:14px;
+      padding:10px 12px;
+      background:#0e1420;
+      font-family:var(--mono);
+      font-size:13px;
+      color:var(--muted);
+    }
+    .tag{display:inline-block; padding:2px 8px; border-radius:999px; border:1px solid var(--line); background:#0b1220; font-size:12px; color:var(--muted)}
+    .small{font-size:12px}
+    .right{display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:flex-end}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <div>
+        <h1>Drill Doomsday (Grégorien) — trouver <span class="mono">K, a, b, c, D</span></h1>
+        <div class="sub">Saisie tes valeurs, puis “Vérifier”. Codes : dimanche=0 … samedi=6.</div>
+      </div>
+      <div class="right">
+        <span class="pill" id="pillYear">Année: —</span>
+        <span class="pill" id="pillLeap">Bissextile: —</span>
+      </div>
+    </div>
+
+    <div class="grid">
+      <!-- Left -->
+      <div class="card">
+        <div class="row">
+          <div class="field">
+            <label for="yearInput">Année (ou laisse vide et clique “Nouvelle année”)</label>
+            <input id="yearInput" type="number" inputmode="numeric" placeholder="ex: 2026" />
+          </div>
+          <div class="btns">
+            <button class="primary" id="btnNew">Nouvelle année</button>
+            <button id="btnUse">Utiliser l’année saisie</button>
+          </div>
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="hint">
+          <div><span class="tag">Étapes</span></div>
+          <div class="mono small" style="margin-top:8px">
+            C = ⌊année/100⌋<br/>
+            K = (5×(C mod 4) + 2) mod 7<br/>
+            y = année mod 100<br/>
+            a = ⌊y/12⌋ &nbsp;&nbsp; b = y mod 12 &nbsp;&nbsp; c = ⌊b/4⌋<br/>
+            D = (a + b + c + K) mod 7
+          </div>
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="twoCol">
+          <div class="field">
+            <label for="inK">K</label>
+            <input id="inK" type="number" placeholder="0..6" />
+          </div>
+          <div class="field">
+            <label for="ina">a</label>
+            <input id="ina" type="number" placeholder="entier" />
+          </div>
+          <div class="field">
+            <label for="inb">b</label>
+            <input id="inb" type="number" placeholder="0..11" />
+          </div>
+          <div class="field">
+            <label for="inc">c</label>
+            <input id="inc" type="number" placeholder="entier" />
+          </div>
+          <div class="field">
+            <label for="inD">D (doomsday)</label>
+            <input id="inD" type="number" placeholder="0..6" />
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:12px; justify-content:space-between">
+          <div class="btns">
+            <button class="primary" id="btnCheck">Vérifier</button>
+            <button id="btnShow">Afficher la solution</button>
+            <button id="btnClear">Effacer saisies</button>
+          </div>
+          <div class="pill mono" id="pillScore">0 / 0</div>
+        </div>
+
+        <div id="status" class="status warn" style="display:none"></div>
+      </div>
+
+      <!-- Right -->
+      <div class="card">
+        <div class="row" style="justify-content:space-between">
+          <div>
+            <div class="mono" style="font-size:16px; font-weight:700">Détails de l’année</div>
+            <div class="muted small" style="margin-top:4px">Ici tu vois ce que l’appli utilise (sans te donner D tant que tu ne demandes pas).</div>
+          </div>
+        </div>
+
+        <div class="kpi">
+          <div class="box" id="boxYear">année = —</div>
+          <div class="box" id="boxCentury">C = —</div>
+          <div class="box" id="boxY">y = —</div>
+          <div class="box" id="boxLeap">bissextile = —</div>
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="hint">
+          <div><span class="tag">Contrôle rapide</span></div>
+          <div style="margin-top:8px">
+            <div class="muted">Repère siècle (1900/2000/2100…)</div>
+            <div class="mono small" style="margin-top:6px">
+              Pour 2000–2099 : K = 2 (car C mod 4 = 0)<br/>
+              Pour 2100–2199 : K = 0 (car C mod 4 = 1)<br/>
+              Pour 1800–1899 : K = 5 (car C mod 4 = 2)<br/>
+              Pour 1900–1999 : K = 3 (car C mod 4 = 3)
+            </div>
+          </div>
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="hint">
+          <div><span class="tag">Bissextile (grégorien)</span></div>
+          <div style="margin-top:8px" class="small">
+            Une année est bissextile si divisible par 4, sauf les siècles non divisibles par 400.
+            <div class="mono small" style="margin-top:6px">
+              (y % 4 == 0) && (y % 100 != 0 || y % 400 == 0)
+            </div>
+          </div>
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="status" id="solutionBox" style="display:none">
+          <div class="mono" style="font-weight:700; margin-bottom:6px">Solution</div>
+          <div class="mono small" id="solText">—</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ======= Core math =======
+    const dayNames = ["dimanche","lundi","mardi","mercredi","jeudi","vendredi","samedi"];
+
+    function mod(n, m){
+      return ((n % m) + m) % m;
+    }
+
+    function isLeapYear(y){
+      return (y % 4 === 0) && (y % 100 !== 0 || y % 400 === 0);
+    }
+
+    function computeParts(year){
+      const C = Math.floor(year / 100);
+      const K = mod(5 * mod(C, 4) + 2, 7);
+      const yy = mod(year, 100);
+      const a = Math.floor(yy / 12);
+      const b = mod(yy, 12);
+      const c = Math.floor(b / 4);
+      const D = mod(a + b + c + K, 7);
+      return { year, C, K, yy, a, b, c, D, leap: isLeapYear(year) };
+    }
+
+    // ======= UI state =======
+    let current = null;
+    let attempts = 0;
+    let perfects = 0;
+
+    const el = (id) => document.getElementById(id);
+
+    const yearInput = el("yearInput");
+    const inK = el("inK");
+    const ina = el("ina");
+    const inb = el("inb");
+    const inc = el("inc");
+    const inD = el("inD");
+
+    const status = el("status");
+    const solBox = el("solutionBox");
+    const solText = el("solText");
+
+    function setPills(){
+      el("pillYear").textContent = `Année: ${current ? current.year : "—"}`;
+      el("pillLeap").textContent = `Bissextile: ${current ? (current.leap ? "oui" : "non") : "—"}`;
+      el("pillScore").textContent = `${perfects} / ${attempts}`;
+    }
+
+    function setInfoBoxes(){
+      el("boxYear").textContent = `année = ${current ? current.year : "—"}`;
+      el("boxCentury").textContent = `C = ⌊année/100⌋ = ${current ? current.C : "—"}`;
+      el("boxY").textContent = `y = année mod 100 = ${current ? current.yy : "—"}`;
+      el("boxLeap").textContent = `bissextile = ${current ? (current.leap ? "oui" : "non") : "—"}`;
+    }
+
+    function setStatus(kind, html){
+      status.className = "status " + kind;
+      status.innerHTML = html;
+      status.style.display = "block";
+    }
+
+    function clearStatus(){
+      status.style.display = "none";
+      status.innerHTML = "";
+    }
+
+    function clearInputs(){
+      [inK, ina, inb, inc, inD].forEach(x => x.value = "");
+      solBox.style.display = "none";
+      solText.textContent = "—";
+      clearStatus();
+      inK.focus();
+    }
+
+    function chooseRandomYear(){
+      // Grégorien utilisable dès 1583 (après la réforme). Tu peux élargir si tu veux.
+      const min = 1583;
+      const max = 2400;
+      const year = Math.floor(Math.random() * (max - min + 1)) + min;
+      current = computeParts(year);
+      setPills();
+      setInfoBoxes();
+      clearInputs();
+    }
+
+    function useYearFromInput(){
+      const v = yearInput.value.trim();
+      if(!v){
+        setStatus("warn", "Entre une année (ex: <span class='mono'>2026</span>) ou clique <b>Nouvelle année</b>.");
+        return;
+      }
+      const year = Number(v);
+      if(!Number.isFinite(year) || year < 0){
+        setStatus("bad", "Année invalide. Mets un entier positif.");
+        return;
+      }
+      current = computeParts(year);
+      setPills();
+      setInfoBoxes();
+      clearInputs();
+    }
+
+    function parseIntOrNaN(x){
+      const v = x.value.trim();
+      if(v === "") return NaN;
+      return Number(v);
+    }
+
+    function check(){
+      if(!current){
+        setStatus("warn", "Choisis d’abord une année (bouton <b>Nouvelle année</b> ou <b>Utiliser l’année saisie</b>).");
+        return;
+      }
+
+      const u = {
+        K: parseIntOrNaN(inK),
+        a: parseIntOrNaN(ina),
+        b: parseIntOrNaN(inb),
+        c: parseIntOrNaN(inc),
+        D: parseIntOrNaN(inD)
+      };
+
+      const missing = Object.entries(u).filter(([k,v]) => !Number.isFinite(v)).map(([k]) => k);
+      if(missing.length){
+        setStatus("warn", `Champs manquants : <span class="mono">${missing.join(", ")}</span>.`);
+        return;
+      }
+
+      const ok = {
+        K: u.K === current.K,
+        a: u.a === current.a,
+        b: u.b === current.b,
+        c: u.c === current.c,
+        D: u.D === current.D
+      };
+
+      attempts++;
+      const allOk = Object.values(ok).every(Boolean);
+      if(allOk) perfects++;
+
+      setPills();
+
+      const parts = ["K","a","b","c","D"].map(k => {
+        const flag = ok[k] ? "✅" : "❌";
+        const exp = ok[k]
+          ? `<span class="mono">${k}=${u[k]}</span>`
+          : `<span class="mono">${k}=${u[k]}</span> → <span class="mono">${k}=${current[k]}</span>`;
+        return `${flag} ${exp}`;
+      }).join("<br/>");
+
+      const dName = dayNames[current.D];
+      const extra = `<br/><br/>Doomsday : <span class="mono">${current.D}</span> = <b>${dName}</b>.`;
+
+      setStatus(allOk ? "ok" : "bad", parts + extra);
+
+      // Si tout est bon, enchaine automatiquement sur une nouvelle année (option pratique)
+      // Décommente si tu veux:
+      // if(allOk) setTimeout(chooseRandomYear, 450);
+    }
+
+    function showSolution(){
+      if(!current){
+        setStatus("warn", "Choisis d’abord une année.");
+        return;
+      }
+      const { year, C, K, yy, a, b, c, D, leap } = current;
+      solText.innerHTML =
+        `année = ${year}<br/>` +
+        `C = ⌊${year}/100⌋ = ${C}<br/>` +
+        `K = (5×(${C} mod 4) + 2) mod 7 = ${K}<br/>` +
+        `y = ${year} mod 100 = ${yy}<br/>` +
+        `a = ⌊${yy}/12⌋ = ${a}<br/>` +
+        `b = ${yy} mod 12 = ${b}<br/>` +
+        `c = ⌊${b}/4⌋ = ${c}<br/>` +
+        `D = (${a}+${b}+${c}+${K}) mod 7 = ${D} = ${dayNames[D]}<br/>` +
+        `bissextile = ${leap ? "oui" : "non"}`;
+      solBox.style.display = "block";
+    }
+
+    // ======= Events =======
+    el("btnNew").addEventListener("click", chooseRandomYear);
+    el("btnUse").addEventListener("click", useYearFromInput);
+    el("btnCheck").addEventListener("click", check);
+    el("btnShow").addEventListener("click", showSolution);
+    el("btnClear").addEventListener("click", clearInputs);
+
+    // Enter to check
+    [yearInput, inK, ina, inb, inc, inD].forEach(inp => {
+      inp.addEventListener("keydown", (e) => {
+        if(e.key === "Enter"){
+          if(inp === yearInput) useYearFromInput();
+          else check();
+        }
+      });
+    });
+
+    // Start with a random year
+    chooseRandomYear();
+  </script>
+</body>
+</html>
