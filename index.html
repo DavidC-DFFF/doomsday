@@ -64,7 +64,6 @@
       width:120px;
       text-align:center;
     }
-    input[readonly]{opacity:1}
 
     .btns{display:flex; gap:10px; flex-wrap:wrap}
     button{
@@ -168,7 +167,7 @@
     <header>
       <div>
         <h1>Doomsday Drill</h1>
-        <div class="sub">Choisis K, a, b, c puis le doomsday. Validation + correction en une fois.</div>
+        <div class="sub">Choisis K, a, b, c puis le doomsday. La correction reste jusqu’à “Nouvelle année”.</div>
       </div>
       <div class="pill mono" id="pillScore">0 / 0</div>
     </header>
@@ -180,7 +179,6 @@
             <label>Année</label><br>
             <input id="yearInput" type="text" readonly value="—" />
           </div>
-          <div class="pill mono" id="pillYear">—</div>
         </div>
 
         <div class="btns">
@@ -238,7 +236,7 @@
       const b = mod(yy, 12);
       const c = Math.floor(b / 4);
       const D = mod(a + b + c + K, 7); // 0..6 (dimanche=0)
-      return { year, C, K, yy, a, b, c, D };
+      return { year, K, a, b, c, D };
     }
 
     // state
@@ -280,9 +278,9 @@
       const wrap = el(containerId);
       [...wrap.children].forEach(ch => {
         ch.dataset.selected = (Number(ch.dataset.value) === value) ? "true" : "false";
-        ch.classList.remove("ok","bad");
+        ch.classList.remove("ok","bad"); // on enlève la couleur d'évaluation si tu changes
       });
-      clearStatus();
+      // NOTE: on NE touche PAS à la correction (status) ici.
     }
 
     function selectDay(code){
@@ -292,23 +290,34 @@
         btn.dataset.selected = (Number(btn.dataset.value) === code) ? "true" : "false";
         btn.classList.remove("ok","bad");
       });
-      clearStatus();
+      // NOTE: on NE touche PAS à la correction (status) ici.
     }
 
     function resetPicks(){
       for(const k of Object.keys(picks)) picks[k] = null;
+
       ["chipsK","chipsA","chipsB","chipsC"].forEach(id => {
         const wrap = el(id);
-        [...wrap.children].forEach(ch => { ch.dataset.selected="false"; ch.classList.remove("ok","bad"); });
+        [...wrap.children].forEach(ch => {
+          ch.dataset.selected="false";
+          ch.classList.remove("ok","bad");
+        });
       });
+
       const dayWrap = el("days");
-      [...dayWrap.children].forEach(btn => { btn.dataset.selected="false"; btn.classList.remove("ok","bad"); });
-      clearStatus();
+      [...dayWrap.children].forEach(btn => {
+        btn.dataset.selected="false";
+        btn.classList.remove("ok","bad");
+      });
+
+      // IMPORTANT: on garde la correction affichée (status) comme demandé.
     }
 
-    function setPills(){
+    function setScore(){
       el("pillScore").textContent = `${perfects} / ${attempts}`;
-      el("pillYear").textContent = current ? `Y=${current.year}` : "—";
+    }
+
+    function setYear(){
       el("yearInput").value = current ? String(current.year) : "—";
     }
 
@@ -328,8 +337,9 @@
       const min = 1583, max = 2400;
       const year = Math.floor(Math.random() * (max - min + 1)) + min;
       current = computeParts(year);
-      setPills();
+      setYear();
       resetPicks();
+      clearStatus(); // la correction ne disparaît QUE quand tu changes d'année
     }
 
     function allChosen(){
@@ -374,7 +384,7 @@
       const allOk = Object.values(ok).every(Boolean);
       if(allOk) perfects++;
 
-      setPills();
+      setScore();
 
       const lines = [];
       for(const k of ["K","a","b","c"]){
@@ -388,18 +398,14 @@
 
       setStatus(allOk ? "ok" : "bad", lines.join("<br/>"));
 
-      // feedback colors
+      // feedback colors (sur ta sélection)
       colorize("chipsK", sol.K, picks.K);
       colorize("chipsA", sol.a, picks.a);
       colorize("chipsB", sol.b, picks.b);
       colorize("chipsC", sol.c, picks.c);
       colorizeDays(sol.D, picks.D);
 
-      // Auto-next on perfect (toggle here)
-      const AUTO_NEXT_ON_PERFECT = true;
-      if(allOk && AUTO_NEXT_ON_PERFECT){
-        setTimeout(chooseRandomYear, 450);
-      }
+      // IMPORTANT: pas d'auto-next, sinon la correction disparaît.
     }
 
     function showCorrection(){
@@ -424,6 +430,7 @@
     el("btnCheck").addEventListener("click", validate);
     el("btnShow").addEventListener("click", showCorrection);
 
+    setScore();
     chooseRandomYear();
   </script>
 </body>
