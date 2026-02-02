@@ -6,8 +6,8 @@
   <title>Doomsday Drill</title>
   <style>
     :root{
-      --bg:#0b0f14; --card:#121826; --muted:#8aa0b8; --text:#e7eef7;
-      --ok:#2ecc71; --bad:#ff4d4d; --warn:#f1c40f; /* warn = orange */
+      --bg:#0b0f14; --muted:#8aa0b8; --text:#e7eef7;
+      --ok:#2ecc71; --bad:#ff4d4d; --warn:#f1c40f;
       --line:#223046; --btn:#1f2a3d; --btn2:#223a63; --chip:#0e1420;
       --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
       --sans: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
@@ -34,6 +34,10 @@
       font-size:12px; color:var(--muted); background:var(--chip);
       white-space:nowrap;
     }
+    .pill.ok{border-color:rgba(46,204,113,.55); color:var(--text); background:rgba(46,204,113,.12)}
+    .pill.bad{border-color:rgba(255,77,77,.55); color:var(--text); background:rgba(255,77,77,.10)}
+    .pill.warn{border-color:rgba(241,196,15,.55); color:var(--text); background:rgba(241,196,15,.08)}
+
     .card{
       background:rgba(18,24,38,.88);
       border:1px solid var(--line);
@@ -82,16 +86,41 @@
     }
     button.primary{background:var(--btn2); border-color:#2f4f86}
     button:active{transform:translateY(1px)}
-    button.result-ok{background:rgba(46,204,113,.18); border-color:rgba(46,204,113,.55)}
-    button.result-bad{background:rgba(255,77,77,.16); border-color:rgba(255,77,77,.55)}
-    button.result-warn{background:rgba(241,196,15,.10); border-color:rgba(241,196,15,.55)}
 
-    .sectionTitle{
-      display:flex; justify-content:space-between; align-items:flex-end;
-      margin:12px 0 8px 0;
-      font-weight:900; font-size:14px;
+    /* Accordion */
+    details{
+      border:1px solid var(--line);
+      border-radius:14px;
+      background:rgba(14,20,32,.55);
+      margin-top:10px;
+      overflow:hidden;
     }
+    summary{
+      list-style:none;
+      cursor:pointer;
+      padding:12px 12px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      font-weight:900;
+      user-select:none;
+    }
+    summary::-webkit-details-marker{display:none}
+    .sumLeft{display:flex; align-items:baseline; gap:10px}
     .mini{font-size:12px; color:var(--muted); font-weight:800}
+    .chev{
+      width:28px; height:28px;
+      border-radius:10px;
+      display:flex; align-items:center; justify-content:center;
+      border:1px solid var(--line);
+      background:var(--chip);
+      font-family:var(--mono);
+      color:var(--muted);
+      flex:0 0 auto;
+    }
+    details[open] .chev{color:var(--text)}
+    .panel{padding:0 12px 12px 12px}
 
     .chips{display:grid; gap:8px}
     .cols7{grid-template-columns:repeat(7, minmax(0,1fr))}
@@ -153,10 +182,17 @@
     .daybtn.bad{border-color:rgba(255,77,77,.65); outline:2px solid rgba(255,77,77,.25)}
     .daybtn.miss{border-color:rgba(241,196,15,.65); outline:2px solid rgba(241,196,15,.20)}
 
-    .hr{height:1px; background:var(--line); margin:12px 0}
-
+    .locked details{opacity:.94}
     .locked .chip,
     .locked .daybtn{ pointer-events:none; opacity:.92; }
+
+    .footerRow{
+      margin-top:10px;
+      display:flex;
+      justify-content:flex-end;
+      gap:8px;
+      flex-wrap:wrap;
+    }
   </style>
 </head>
 <body>
@@ -164,7 +200,7 @@
     <header>
       <div>
         <h1>Doomsday Drill</h1>
-        <div class="sub">Validation partielle : non répondu → orange. Chrono affiché sur le OK si juste.</div>
+        <div class="sub">Validation auto au clic sur “Jour de la date”. Sections repliables.</div>
       </div>
       <div class="pill mono" id="pillScore">0 / 0</div>
     </header>
@@ -183,28 +219,68 @@
         </div>
       </div>
 
-      <div class="sectionTitle"><div>K</div><div class="mini">0..6</div></div>
-      <div class="chips cols7" id="chipsK"></div>
+      <!-- Accordions -->
+      <details open id="accK">
+        <summary>
+          <span class="sumLeft"><span>K</span><span class="mini">0..6</span></span>
+          <span class="chev">▾</span>
+        </summary>
+        <div class="panel">
+          <div class="chips cols7" id="chipsK"></div>
+        </div>
+      </details>
 
-      <div class="sectionTitle"><div>a</div><div class="mini">0..8</div></div>
-      <div class="chips cols9" id="chipsA"></div>
+      <details open id="accA">
+        <summary>
+          <span class="sumLeft"><span>a</span><span class="mini">0..8</span></span>
+          <span class="chev">▾</span>
+        </summary>
+        <div class="panel">
+          <div class="chips cols9" id="chipsA"></div>
+        </div>
+      </details>
 
-      <div class="sectionTitle"><div>b</div><div class="mini">0..11</div></div>
-      <div class="chips cols12" id="chipsB"></div>
+      <details open id="accB">
+        <summary>
+          <span class="sumLeft"><span>b</span><span class="mini">0..11</span></span>
+          <span class="chev">▾</span>
+        </summary>
+        <div class="panel">
+          <div class="chips cols12" id="chipsB"></div>
+        </div>
+      </details>
 
-      <div class="sectionTitle"><div>c</div><div class="mini">0..2</div></div>
-      <div class="chips cols3" id="chipsC"></div>
+      <details open id="accC">
+        <summary>
+          <span class="sumLeft"><span>c</span><span class="mini">0..2</span></span>
+          <span class="chev">▾</span>
+        </summary>
+        <div class="panel">
+          <div class="chips cols3" id="chipsC"></div>
+        </div>
+      </details>
 
-      <div class="hr"></div>
+      <details open id="accDoom">
+        <summary>
+          <span class="sumLeft"><span>Doomsday (de l’année)</span><span class="mini">lundi → dimanche</span></span>
+          <span class="chev">▾</span>
+        </summary>
+        <div class="panel">
+          <div class="days" id="daysDoomsday"></div>
+        </div>
+      </details>
 
-      <div class="sectionTitle"><div>Doomsday (de l’année)</div><div class="mini">lundi → dimanche</div></div>
-      <div class="days" id="daysDoomsday"></div>
+      <!-- Always visible: day of the date -->
+      <div style="margin-top:10px; border:1px solid var(--line); border-radius:14px; background:rgba(14,20,32,.55); padding:12px;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-end; gap:10px; margin-bottom:8px;">
+          <div style="font-weight:900">Jour de la date</div>
+          <div class="mini">lundi → dimanche</div>
+        </div>
+        <div class="days" id="daysDate"></div>
+      </div>
 
-      <div class="sectionTitle"><div>Jour de la date</div><div class="mini">lundi → dimanche</div></div>
-      <div class="days" id="daysDate"></div>
-
-      <div class="btns" style="margin-top:12px">
-        <button id="btnCheck">Valider</button>
+      <div class="footerRow">
+        <div class="pill mono" id="pillResult" style="display:none;">—</div>
       </div>
     </div>
   </div>
@@ -271,6 +347,20 @@
       el("card").classList.toggle("locked", locked);
     }
 
+    function showResult(kind, text){
+      const p = el("pillResult");
+      p.style.display = "inline-flex";
+      p.classList.remove("ok","bad","warn");
+      p.classList.add(kind);
+      p.textContent = text;
+    }
+    function hideResult(){
+      const p = el("pillResult");
+      p.style.display = "none";
+      p.textContent = "—";
+      p.classList.remove("ok","bad","warn");
+    }
+
     function clearMarks(){
       ["chipsK","chipsA","chipsB","chipsC"].forEach(id => {
         [...el(id).children].forEach(ch => ch.classList.remove("ok","bad","miss"));
@@ -278,12 +368,6 @@
       ["daysDoomsday","daysDate"].forEach(id => {
         [...el(id).children].forEach(btn => btn.classList.remove("ok","bad","miss"));
       });
-    }
-
-    function resetButton(){
-      const btn = el("btnCheck");
-      btn.classList.remove("result-ok","result-bad","result-warn");
-      btn.textContent = "Valider";
     }
 
     function resetSelections(){
@@ -316,7 +400,7 @@
       }
     }
 
-    function buildDays(containerId, pickKey){
+    function buildDays(containerId, pickKey, onPick){
       const wrap = el(containerId);
       wrap.innerHTML = "";
       uiDays.forEach(dy => {
@@ -331,6 +415,7 @@
           [...wrap.children].forEach(btn => {
             btn.dataset.selected = (Number(btn.dataset.value) === dy.code) ? "true" : "false";
           });
+          if(typeof onPick === "function") onPick();
         });
         wrap.appendChild(b);
       });
@@ -364,21 +449,11 @@
       return { answered:true, correct: picked === correct };
     }
 
-    function validate(){
+    function validateNow(){
       if(!current || locked) return;
 
-      const btn = el("btnCheck");
-
       if(!anyChosen()){
-        btn.classList.remove("result-ok","result-bad");
-        btn.classList.add("result-warn");
-        btn.textContent = "Donne au moins 1 réponse";
-        setTimeout(() => {
-          if(!locked){
-            btn.classList.remove("result-warn");
-            btn.textContent = "Valider";
-          }
-        }, 900);
+        showResult("warn", "Donne au moins 1 réponse");
         return;
       }
 
@@ -387,7 +462,7 @@
       const sol = current;
 
       clearMarks();
-      resetButton();
+      hideResult();
 
       const rK   = markGroup("chipsK",       picks.K,        sol.K);
       const rA   = markGroup("chipsA",       picks.a,        sol.a);
@@ -397,29 +472,20 @@
       const rDay = markGroup("daysDate",     picks.dateDay,  sol.dateDow);
 
       const results = [rK,rA,rB,rC,rD,rDay];
-      const answeredCount = results.filter(r => r.answered).length;
       const allAnsweredCorrect = results.filter(r => r.answered).every(r => r.correct);
 
-      // OK partiel = toutes les réponses fournies sont correctes
       const partialOk = allAnsweredCorrect;
-
-      setScore(); // score mis à jour après perfects éventuellement
 
       if(partialOk){
         perfects++;
         const elapsed = performance.now() - startMs;
         const sec = (elapsed/1000).toFixed(2);
-        btn.classList.add("result-ok");
-        btn.textContent = `✅ OK · ${sec}s`;
+        showResult("ok", `✅ OK · ${sec}s`);
       } else {
-        btn.classList.add("result-bad");
-        btn.textContent = "❌ Faux";
+        showResult("bad", "❌ Faux");
       }
 
-      // update score now that perfects may have changed
       setScore();
-
-      // figer jusqu'à Nouvelle date
       setLocked(true);
     }
 
@@ -443,23 +509,34 @@
 
       setLocked(false);
       clearMarks();
-      resetButton();
+      hideResult();
       resetSelections();
 
       startMs = performance.now();
     }
 
-    // Init
+    // Init accordions icons toggle
+    document.querySelectorAll("details").forEach(d => {
+      d.addEventListener("toggle", () => {
+        const chev = d.querySelector(".chev");
+        if(!chev) return;
+        chev.textContent = d.open ? "▾" : "▸";
+      });
+      // initial
+      const chev = d.querySelector(".chev");
+      if(chev) chev.textContent = d.open ? "▾" : "▸";
+    });
+
+    // Build UI
     buildChipsRange("chipsK","K",0,6);
     buildChipsRange("chipsA","a",0,8);
     buildChipsRange("chipsB","b",0,11);
     buildChipsRange("chipsC","c",0,2);
 
-    buildDays("daysDoomsday","doomsday");
-    buildDays("daysDate","dateDay");
+    buildDays("daysDoomsday","doomsday");              // no auto-validate
+    buildDays("daysDate","dateDay", validateNow);      // auto-validate here
 
     el("btnNew").addEventListener("click", chooseRandomDate);
-    el("btnCheck").addEventListener("click", validate);
 
     setScore();
     chooseRandomDate();
