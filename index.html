@@ -6,7 +6,7 @@
   <title>Doomsday Drill</title>
   <style>
     :root{
-      --bg:#0b0f14; --muted:#8aa0b8; --text:#e7eef7;
+      --bg:#0b0f14; --text:#e7eef7; --muted:#8aa0b8;
       --ok:#2ecc71; --bad:#ff4d4d; --warn:#f1c40f;
       --line:#223046; --btn:#1f2a3d; --btn2:#223a63; --chip:#0e1420;
       --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
@@ -19,24 +19,7 @@
       color:var(--text);
       -webkit-tap-highlight-color: transparent;
     }
-    .wrap{max-width:860px; margin:0 auto; padding:14px}
-    header{
-      display:flex; gap:10px; flex-wrap:wrap;
-      justify-content:space-between; align-items:flex-end;
-      margin-bottom:10px;
-    }
-    h1{font-size:16px; margin:0}
-    .sub{color:var(--muted); font-size:12px; margin-top:4px}
-    .pill{
-      display:inline-flex; gap:8px; align-items:center;
-      padding:7px 10px; border:1px solid var(--line);
-      border-radius:999px; font-family:var(--mono);
-      font-size:12px; color:var(--muted); background:var(--chip);
-      white-space:nowrap;
-    }
-    .pill.ok{border-color:rgba(46,204,113,.55); color:var(--text); background:rgba(46,204,113,.12)}
-    .pill.bad{border-color:rgba(255,77,77,.55); color:var(--text); background:rgba(255,77,77,.10)}
-    .pill.warn{border-color:rgba(241,196,15,.55); color:var(--text); background:rgba(241,196,15,.08)}
+    .wrap{max-width:980px; margin:0 auto; padding:14px}
 
     .card{
       background:rgba(18,24,38,.88);
@@ -46,8 +29,10 @@
       box-shadow:0 10px 30px rgba(0,0,0,.35);
     }
 
+    /* Top row */
     .topRow{
-      display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between;
+      display:flex; gap:10px; flex-wrap:wrap;
+      align-items:center; justify-content:space-between;
       margin-bottom:10px;
     }
     .fieldRow{
@@ -69,8 +54,7 @@
       width:170px;
       text-align:center;
     }
-
-    .btns{display:flex; gap:10px; flex-wrap:wrap}
+    .btns{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
     button{
       border:1px solid var(--line);
       background:var(--btn);
@@ -87,41 +71,43 @@
     button.primary{background:var(--btn2); border-color:#2f4f86}
     button.ghost{background:rgba(31,42,61,.65)}
     button:active{transform:translateY(1px)}
+    button:disabled{opacity:.55; cursor:not-allowed}
 
-    /* Accordion */
-    details{
+    /* Collapsed tabs row */
+    .tabsRow{
+      display:flex; gap:8px; flex-wrap:wrap;
+      margin:10px 0;
+      align-items:center;
+    }
+    .tabBtn{
+      width:44px; height:44px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background:var(--chip);
+      display:flex; align-items:center; justify-content:center;
+      font-family:var(--mono);
+      font-weight:900;
+      cursor:pointer;
+      user-select:none;
+    }
+    .tabBtn.on{
+      border-color:#2f4f86;
+      outline:2px solid rgba(90,140,220,.55);
+      background:#0b1426;
+    }
+    .tabBtn:active{transform:translateY(1px)}
+
+    /* Sections (no headers) */
+    .sec{
+      display:none;
       border:1px solid var(--line);
       border-radius:14px;
       background:rgba(14,20,32,.55);
+      padding:12px;
       margin-top:10px;
       overflow:hidden;
     }
-    summary{
-      list-style:none;
-      cursor:pointer;
-      padding:12px 12px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      font-weight:900;
-      user-select:none;
-    }
-    summary::-webkit-details-marker{display:none}
-    .sumLeft{display:flex; align-items:baseline; gap:10px}
-    .mini{font-size:12px; color:var(--muted); font-weight:800}
-    .chev{
-      width:28px; height:28px;
-      border-radius:10px;
-      display:flex; align-items:center; justify-content:center;
-      border:1px solid var(--line);
-      background:var(--chip);
-      font-family:var(--mono);
-      color:var(--muted);
-      flex:0 0 auto;
-    }
-    details[open] .chev{color:var(--text)}
-    .panel{padding:0 12px 12px 12px}
+    .sec.on{display:block}
 
     .chips{display:grid; gap:8px}
     .cols7{grid-template-columns:repeat(7, minmax(0,1fr))}
@@ -183,38 +169,47 @@
     .daybtn.bad{border-color:rgba(255,77,77,.65); outline:2px solid rgba(255,77,77,.25)}
     .daybtn.miss{border-color:rgba(241,196,15,.65); outline:2px solid rgba(241,196,15,.20)}
 
-    .locked details{opacity:.94}
-    .locked .chip,
-    .locked .daybtn{ pointer-events:none; opacity:.92; }
+    /* Always visible day-of-date block */
+    .always{
+      margin-top:10px;
+      border:1px solid var(--line);
+      border-radius:14px;
+      background:rgba(14,20,32,.55);
+      padding:12px;
+    }
+    .alwaysHead{
+      display:flex; justify-content:space-between; align-items:flex-end; gap:10px;
+      margin-bottom:8px;
+      font-weight:900;
+    }
+    .mini{font-size:12px; color:var(--muted); font-weight:800}
 
-    .footerRow{
+    /* Bottom bar */
+    .bottomRow{
       margin-top:10px;
       display:flex;
       justify-content:flex-end;
       gap:8px;
       flex-wrap:wrap;
-    }
-
-    /* small helper bar for mobile */
-    .helperRow{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
       align-items:center;
-      justify-content:flex-end;
     }
+    .pill{
+      display:inline-flex; gap:8px; align-items:center;
+      padding:7px 10px; border:1px solid var(--line);
+      border-radius:999px; font-family:var(--mono);
+      font-size:12px; color:var(--muted); background:var(--chip);
+      white-space:nowrap;
+    }
+    .pill.ok{border-color:rgba(46,204,113,.55); color:var(--text); background:rgba(46,204,113,.12)}
+    .pill.bad{border-color:rgba(255,77,77,.55); color:var(--text); background:rgba(255,77,77,.10)}
+    .pill.warn{border-color:rgba(241,196,15,.55); color:var(--text); background:rgba(241,196,15,.08)}
+
+    .locked .chip,
+    .locked .daybtn{ pointer-events:none; opacity:.92; }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <header>
-      <div>
-        <h1>Doomsday Drill</h1>
-        <div class="sub">Validation auto au clic sur “Jour de la date”. Sections repliables + bouton Tout replier/déplier.</div>
-      </div>
-      <div class="pill mono" id="pillScore">0 / 0</div>
-    </header>
-
     <div class="card" id="card">
       <div class="topRow">
         <div class="fieldRow">
@@ -226,65 +221,56 @@
 
         <div class="btns">
           <button class="primary" id="btnNew">Nouvelle date</button>
+          <button class="ghost" id="btnToggleAll">Tout replier</button>
         </div>
       </div>
 
-      <div class="helperRow">
-        <button class="ghost" id="btnToggleAll">Tout replier</button>
+      <!-- Square buttons (no vertical waste) -->
+      <div class="tabsRow" id="tabsRow">
+        <div class="tabBtn on" data-sec="K" title="K">K</div>
+        <div class="tabBtn on" data-sec="a" title="a">a</div>
+        <div class="tabBtn on" data-sec="b" title="b">b</div>
+        <div class="tabBtn on" data-sec="c" title="c">c</div>
+        <div class="tabBtn on" data-sec="D" title="Doomsday">D</div>
       </div>
 
-      <!-- Accordions -->
-      <details open class="acc">
-        <summary>
-          <span class="sumLeft"><span>K</span><span class="mini">0..6</span></span>
-          <span class="chev">▾</span>
-        </summary>
-        <div class="panel"><div class="chips cols7" id="chipsK"></div></div>
-      </details>
+      <!-- Sections: appear ONLY if toggled on -->
+      <div class="sec on" data-sec="K">
+        <div class="chips cols7" id="chipsK"></div>
+      </div>
 
-      <details open class="acc">
-        <summary>
-          <span class="sumLeft"><span>a</span><span class="mini">0..8</span></span>
-          <span class="chev">▾</span>
-        </summary>
-        <div class="panel"><div class="chips cols9" id="chipsA"></div></div>
-      </details>
+      <div class="sec on" data-sec="a">
+        <div class="chips cols9" id="chipsA"></div>
+      </div>
 
-      <details open class="acc">
-        <summary>
-          <span class="sumLeft"><span>b</span><span class="mini">0..11</span></span>
-          <span class="chev">▾</span>
-        </summary>
-        <div class="panel"><div class="chips cols12" id="chipsB"></div></div>
-      </details>
+      <div class="sec on" data-sec="b">
+        <div class="chips cols12" id="chipsB"></div>
+      </div>
 
-      <details open class="acc">
-        <summary>
-          <span class="sumLeft"><span>c</span><span class="mini">0..2</span></span>
-          <span class="chev">▾</span>
-        </summary>
-        <div class="panel"><div class="chips cols3" id="chipsC"></div></div>
-      </details>
+      <div class="sec on" data-sec="c">
+        <div class="chips cols3" id="chipsC"></div>
+      </div>
 
-      <details open class="acc">
-        <summary>
-          <span class="sumLeft"><span>Doomsday (de l’année)</span><span class="mini">lundi → dimanche</span></span>
-          <span class="chev">▾</span>
-        </summary>
-        <div class="panel"><div class="days" id="daysDoomsday"></div></div>
-      </details>
-
-      <!-- Always visible: day of the date -->
-      <div style="margin-top:10px; border:1px solid var(--line); border-radius:14px; background:rgba(14,20,32,.55); padding:12px;">
+      <div class="sec on" data-sec="D">
         <div style="display:flex; justify-content:space-between; align-items:flex-end; gap:10px; margin-bottom:8px;">
-          <div style="font-weight:900">Jour de la date</div>
+          <div style="font-weight:900">Doomsday</div>
+          <div class="mini">lundi → dimanche</div>
+        </div>
+        <div class="days" id="daysDoomsday"></div>
+      </div>
+
+      <!-- Always visible: day-of-date -->
+      <div class="always">
+        <div class="alwaysHead">
+          <div>Jour de la date</div>
           <div class="mini">lundi → dimanche</div>
         </div>
         <div class="days" id="daysDate"></div>
       </div>
 
-      <div class="footerRow">
-        <div class="pill mono" id="pillResult" style="display:none;">—</div>
+      <div class="bottomRow">
+        <div class="pill" id="pillResult" style="display:none;">—</div>
+        <div class="pill" id="pillScore">0 / 0</div>
       </div>
     </div>
   </div>
@@ -293,7 +279,7 @@
     const el = (id) => document.getElementById(id);
     const mod = (n, m) => ((n % m) + m) % m;
 
-    // UI: lundi -> dimanche ; internal codes: dimanche=0 .. samedi=6
+    // UI order: lundi -> dimanche ; internal codes: dimanche=0 .. samedi=6
     const uiDays = [
       {label:"Lun", name:"lundi", code:1},
       {label:"Mar", name:"mardi", code:2},
@@ -334,14 +320,9 @@
     let attempts = 0;
     let perfects = 0;
     let locked = false;
-
     let startMs = 0;
 
-    const picks = {
-      K:null, a:null, b:null, c:null,
-      doomsday:null,
-      dateDay:null
-    };
+    const picks = { K:null, a:null, b:null, c:null, doomsday:null, dateDay:null };
 
     function setScore(){
       el("pillScore").textContent = `${perfects} / ${attempts}`;
@@ -429,6 +410,10 @@
       return Object.values(picks).some(v => v !== null);
     }
 
+    // Marking rules:
+    // - answered correct -> green on picked
+    // - answered wrong   -> red on picked AND green on correct
+    // - not answered     -> orange on correct
     function markGroup(containerId, picked, correct){
       const children = [...el(containerId).children];
 
@@ -454,6 +439,9 @@
 
       if(!anyChosen()){
         showResult("warn", "Donne au moins 1 réponse");
+        attempts++;
+        setScore();
+        setLocked(true);
         return;
       }
 
@@ -477,8 +465,7 @@
       if(allAnsweredCorrect){
         perfects++;
         const elapsed = performance.now() - startMs;
-        const sec = (elapsed/1000).toFixed(2);
-        showResult("ok", `✅ OK · ${sec}s`);
+        showResult("ok", `✅ OK · ${(elapsed/1000).toFixed(2)}s`);
       } else {
         showResult("bad", "❌ Faux");
       }
@@ -496,12 +483,7 @@
       const day = Math.floor(Math.random() * daysInMonth(year, month)) + 1;
       const dow = weekdayCodeUTC(year, month, day);
 
-      current = {
-        ...base,
-        dateDay: day,
-        dateMonth: month,
-        dateDow: dow
-      };
+      current = { ...base, dateDay: day, dateMonth: month, dateDow: dow };
 
       el("dateInput").value = formatDateFR(day, month, year);
 
@@ -513,27 +495,40 @@
       startMs = performance.now();
     }
 
-    // Accordion chevrons + toggle all
-    function updateChev(detailsEl){
-      const chev = detailsEl.querySelector(".chev");
-      if(!chev) return;
-      chev.textContent = detailsEl.open ? "▾" : "▸";
+    // Tabs: toggle visibility of sections without vertical headers
+    const tabButtons = [...document.querySelectorAll(".tabBtn")];
+    const sections = [...document.querySelectorAll(".sec")];
+
+    function setSecVisible(secKey, visible){
+      const btn = tabButtons.find(b => b.dataset.sec === secKey);
+      const sec = sections.find(s => s.dataset.sec === secKey);
+      if(btn) btn.classList.toggle("on", visible);
+      if(sec) sec.classList.toggle("on", visible);
+      refreshToggleAllLabel();
     }
-    const accs = [...document.querySelectorAll("details.acc")];
-    accs.forEach(d => {
-      d.addEventListener("toggle", () => updateChev(d));
-      updateChev(d);
+
+    function areAllHidden(){
+      return sections.every(s => !s.classList.contains("on"));
+    }
+    function areAllShown(){
+      return sections.every(s => s.classList.contains("on"));
+    }
+    function refreshToggleAllLabel(){
+      el("btnToggleAll").textContent = areAllHidden() ? "Tout déplier" : "Tout replier";
+    }
+
+    tabButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const key = btn.dataset.sec;
+        const sec = sections.find(s => s.dataset.sec === key);
+        const now = sec ? sec.classList.contains("on") : false;
+        setSecVisible(key, !now);
+      });
     });
 
-    const btnToggleAll = el("btnToggleAll");
-    function setAll(open){
-      accs.forEach(d => d.open = open);
-      accs.forEach(updateChev);
-      btnToggleAll.textContent = open ? "Tout replier" : "Tout déplier";
-    }
-    btnToggleAll.addEventListener("click", () => {
-      const anyClosed = accs.some(d => !d.open);
-      setAll(anyClosed); // if any closed -> open all, else close all
+    el("btnToggleAll").addEventListener("click", () => {
+      const makeVisible = areAllHidden(); // if all hidden -> open all, else close all
+      sections.forEach(s => setSecVisible(s.dataset.sec, makeVisible));
     });
 
     // Build UI
@@ -542,11 +537,13 @@
     buildChipsRange("chipsB","b",0,11);
     buildChipsRange("chipsC","c",0,2);
 
-    buildDays("daysDoomsday","doomsday");              // no auto-validate
-    buildDays("daysDate","dateDay", validateNow);      // auto-validate here
+    buildDays("daysDoomsday","doomsday");
+    buildDays("daysDate","dateDay", validateNow); // auto-validate here
 
     el("btnNew").addEventListener("click", chooseRandomDate);
 
+    // Init
+    refreshToggleAllLabel();
     setScore();
     chooseRandomDate();
   </script>
