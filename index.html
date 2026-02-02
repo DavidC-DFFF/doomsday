@@ -85,6 +85,7 @@
       white-space:nowrap;
     }
     button.primary{background:var(--btn2); border-color:#2f4f86}
+    button.ghost{background:rgba(31,42,61,.65)}
     button:active{transform:translateY(1px)}
 
     /* Accordion */
@@ -193,6 +194,15 @@
       gap:8px;
       flex-wrap:wrap;
     }
+
+    /* small helper bar for mobile */
+    .helperRow{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:flex-end;
+    }
   </style>
 </head>
 <body>
@@ -200,7 +210,7 @@
     <header>
       <div>
         <h1>Doomsday Drill</h1>
-        <div class="sub">Validation auto au clic sur “Jour de la date”. Sections repliables.</div>
+        <div class="sub">Validation auto au clic sur “Jour de la date”. Sections repliables + bouton Tout replier/déplier.</div>
       </div>
       <div class="pill mono" id="pillScore">0 / 0</div>
     </header>
@@ -219,55 +229,49 @@
         </div>
       </div>
 
+      <div class="helperRow">
+        <button class="ghost" id="btnToggleAll">Tout replier</button>
+      </div>
+
       <!-- Accordions -->
-      <details open id="accK">
+      <details open class="acc">
         <summary>
           <span class="sumLeft"><span>K</span><span class="mini">0..6</span></span>
           <span class="chev">▾</span>
         </summary>
-        <div class="panel">
-          <div class="chips cols7" id="chipsK"></div>
-        </div>
+        <div class="panel"><div class="chips cols7" id="chipsK"></div></div>
       </details>
 
-      <details open id="accA">
+      <details open class="acc">
         <summary>
           <span class="sumLeft"><span>a</span><span class="mini">0..8</span></span>
           <span class="chev">▾</span>
         </summary>
-        <div class="panel">
-          <div class="chips cols9" id="chipsA"></div>
-        </div>
+        <div class="panel"><div class="chips cols9" id="chipsA"></div></div>
       </details>
 
-      <details open id="accB">
+      <details open class="acc">
         <summary>
           <span class="sumLeft"><span>b</span><span class="mini">0..11</span></span>
           <span class="chev">▾</span>
         </summary>
-        <div class="panel">
-          <div class="chips cols12" id="chipsB"></div>
-        </div>
+        <div class="panel"><div class="chips cols12" id="chipsB"></div></div>
       </details>
 
-      <details open id="accC">
+      <details open class="acc">
         <summary>
           <span class="sumLeft"><span>c</span><span class="mini">0..2</span></span>
           <span class="chev">▾</span>
         </summary>
-        <div class="panel">
-          <div class="chips cols3" id="chipsC"></div>
-        </div>
+        <div class="panel"><div class="chips cols3" id="chipsC"></div></div>
       </details>
 
-      <details open id="accDoom">
+      <details open class="acc">
         <summary>
           <span class="sumLeft"><span>Doomsday (de l’année)</span><span class="mini">lundi → dimanche</span></span>
           <span class="chev">▾</span>
         </summary>
-        <div class="panel">
-          <div class="days" id="daysDoomsday"></div>
-        </div>
+        <div class="panel"><div class="days" id="daysDoomsday"></div></div>
       </details>
 
       <!-- Always visible: day of the date -->
@@ -425,10 +429,6 @@
       return Object.values(picks).some(v => v !== null);
     }
 
-    // Marking rules:
-    // - answered correct -> green on picked
-    // - answered wrong   -> red on picked AND green on correct
-    // - not answered     -> orange on correct
     function markGroup(containerId, picked, correct){
       const children = [...el(containerId).children];
 
@@ -474,9 +474,7 @@
       const results = [rK,rA,rB,rC,rD,rDay];
       const allAnsweredCorrect = results.filter(r => r.answered).every(r => r.correct);
 
-      const partialOk = allAnsweredCorrect;
-
-      if(partialOk){
+      if(allAnsweredCorrect){
         perfects++;
         const elapsed = performance.now() - startMs;
         const sec = (elapsed/1000).toFixed(2);
@@ -515,16 +513,27 @@
       startMs = performance.now();
     }
 
-    // Init accordions icons toggle
-    document.querySelectorAll("details").forEach(d => {
-      d.addEventListener("toggle", () => {
-        const chev = d.querySelector(".chev");
-        if(!chev) return;
-        chev.textContent = d.open ? "▾" : "▸";
-      });
-      // initial
-      const chev = d.querySelector(".chev");
-      if(chev) chev.textContent = d.open ? "▾" : "▸";
+    // Accordion chevrons + toggle all
+    function updateChev(detailsEl){
+      const chev = detailsEl.querySelector(".chev");
+      if(!chev) return;
+      chev.textContent = detailsEl.open ? "▾" : "▸";
+    }
+    const accs = [...document.querySelectorAll("details.acc")];
+    accs.forEach(d => {
+      d.addEventListener("toggle", () => updateChev(d));
+      updateChev(d);
+    });
+
+    const btnToggleAll = el("btnToggleAll");
+    function setAll(open){
+      accs.forEach(d => d.open = open);
+      accs.forEach(updateChev);
+      btnToggleAll.textContent = open ? "Tout replier" : "Tout déplier";
+    }
+    btnToggleAll.addEventListener("click", () => {
+      const anyClosed = accs.some(d => !d.open);
+      setAll(anyClosed); // if any closed -> open all, else close all
     });
 
     // Build UI
