@@ -20,7 +20,6 @@
       -webkit-tap-highlight-color: transparent;
     }
     .wrap{max-width:980px; margin:0 auto; padding:14px}
-
     .card{
       background:rgba(18,24,38,.88);
       border:1px solid var(--line);
@@ -29,17 +28,24 @@
       box-shadow:0 10px 30px rgba(0,0,0,.35);
     }
 
-    /* Top row */
+    /* Top row: date + buttons together */
     .topRow{
-      display:flex; gap:10px; flex-wrap:wrap;
-      align-items:center; justify-content:space-between;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:flex-start;
       margin-bottom:10px;
     }
     .fieldRow{
-      display:flex; gap:10px; align-items:center; flex-wrap:wrap;
-      padding:10px 12px; border:1px solid var(--line);
-      border-radius:14px; background:var(--chip);
-      flex:1; min-width:260px;
+      display:flex;
+      gap:10px;
+      align-items:center;
+      padding:10px 12px;
+      border:1px solid var(--line);
+      border-radius:14px;
+      background:var(--chip);
+      flex:0 0 auto;
     }
     label{font-size:12px; color:var(--muted)}
     input{
@@ -73,12 +79,8 @@
     button:active{transform:translateY(1px)}
     button:disabled{opacity:.55; cursor:not-allowed}
 
-    /* Collapsed tabs row */
-    .tabsRow{
-      display:flex; gap:8px; flex-wrap:wrap;
-      margin:10px 0;
-      align-items:center;
-    }
+    /* Tabs row (square) */
+    .tabsRow{display:flex; gap:8px; flex-wrap:wrap; margin:10px 0}
     .tabBtn{
       width:44px; height:44px;
       border-radius:12px;
@@ -95,9 +97,8 @@
       outline:2px solid rgba(90,140,220,.55);
       background:#0b1426;
     }
-    .tabBtn:active{transform:translateY(1px)}
 
-    /* Sections (no headers) */
+    /* Sections */
     .sec{
       display:none;
       border:1px solid var(--line);
@@ -169,7 +170,6 @@
     .daybtn.bad{border-color:rgba(255,77,77,.65); outline:2px solid rgba(255,77,77,.25)}
     .daybtn.miss{border-color:rgba(241,196,15,.65); outline:2px solid rgba(241,196,15,.20)}
 
-    /* Always visible day-of-date block */
     .always{
       margin-top:10px;
       border:1px solid var(--line);
@@ -184,7 +184,7 @@
     }
     .mini{font-size:12px; color:var(--muted); font-weight:800}
 
-    /* Bottom bar */
+    /* Bottom row: result + score side-by-side */
     .bottomRow{
       margin-top:10px;
       display:flex;
@@ -225,8 +225,7 @@
         </div>
       </div>
 
-      <!-- Square buttons (no vertical waste) -->
-      <div class="tabsRow" id="tabsRow">
+      <div class="tabsRow">
         <div class="tabBtn on" data-sec="K" title="K">K</div>
         <div class="tabBtn on" data-sec="a" title="a">a</div>
         <div class="tabBtn on" data-sec="b" title="b">b</div>
@@ -234,22 +233,10 @@
         <div class="tabBtn on" data-sec="D" title="Doomsday">D</div>
       </div>
 
-      <!-- Sections: appear ONLY if toggled on -->
-      <div class="sec on" data-sec="K">
-        <div class="chips cols7" id="chipsK"></div>
-      </div>
-
-      <div class="sec on" data-sec="a">
-        <div class="chips cols9" id="chipsA"></div>
-      </div>
-
-      <div class="sec on" data-sec="b">
-        <div class="chips cols12" id="chipsB"></div>
-      </div>
-
-      <div class="sec on" data-sec="c">
-        <div class="chips cols3" id="chipsC"></div>
-      </div>
+      <div class="sec on" data-sec="K"><div class="chips cols7" id="chipsK"></div></div>
+      <div class="sec on" data-sec="a"><div class="chips cols9" id="chipsA"></div></div>
+      <div class="sec on" data-sec="b"><div class="chips cols12" id="chipsB"></div></div>
+      <div class="sec on" data-sec="c"><div class="chips cols3" id="chipsC"></div></div>
 
       <div class="sec on" data-sec="D">
         <div style="display:flex; justify-content:space-between; align-items:flex-end; gap:10px; margin-bottom:8px;">
@@ -259,7 +246,6 @@
         <div class="days" id="daysDoomsday"></div>
       </div>
 
-      <!-- Always visible: day-of-date -->
       <div class="always">
         <div class="alwaysHead">
           <div>Jour de la date</div>
@@ -279,7 +265,6 @@
     const el = (id) => document.getElementById(id);
     const mod = (n, m) => ((n % m) + m) % m;
 
-    // UI order: lundi -> dimanche ; internal codes: dimanche=0 .. samedi=6
     const uiDays = [
       {label:"Lun", name:"lundi", code:1},
       {label:"Mar", name:"mardi", code:2},
@@ -301,7 +286,6 @@
     function weekdayCodeUTC(year, month1, day){
       return new Date(Date.UTC(year, month1 - 1, day)).getUTCDay(); // 0=dim..6=sam
     }
-
     function computeParts(year){
       const C = Math.floor(year / 100);
       const K = mod(5 * mod(C, 4) + 2, 7);
@@ -312,7 +296,6 @@
       const D = mod(a + b + c + K, 7);
       return { year, K, a, b, c, D };
     }
-
     function pad2(n){ return String(n).padStart(2, "0"); }
     function formatDateFR(d,m,y){ return `${pad2(d)}/${pad2(m)}/${y}`; }
 
@@ -410,10 +393,6 @@
       return Object.values(picks).some(v => v !== null);
     }
 
-    // Marking rules:
-    // - answered correct -> green on picked
-    // - answered wrong   -> red on picked AND green on correct
-    // - not answered     -> orange on correct
     function markGroup(containerId, picked, correct){
       const children = [...el(containerId).children];
 
@@ -495,7 +474,7 @@
       startMs = performance.now();
     }
 
-    // Tabs: toggle visibility of sections without vertical headers
+    // Tabs: toggle sections
     const tabButtons = [...document.querySelectorAll(".tabBtn")];
     const sections = [...document.querySelectorAll(".sec")];
 
@@ -507,12 +486,7 @@
       refreshToggleAllLabel();
     }
 
-    function areAllHidden(){
-      return sections.every(s => !s.classList.contains("on"));
-    }
-    function areAllShown(){
-      return sections.every(s => s.classList.contains("on"));
-    }
+    function areAllHidden(){ return sections.every(s => !s.classList.contains("on")); }
     function refreshToggleAllLabel(){
       el("btnToggleAll").textContent = areAllHidden() ? "Tout déplier" : "Tout replier";
     }
@@ -527,8 +501,8 @@
     });
 
     el("btnToggleAll").addEventListener("click", () => {
-      const makeVisible = areAllHidden(); // if all hidden -> open all, else close all
-      sections.forEach(s => setSecVisible(s.dataset.sec, makeVisible));
+      const openAll = areAllHidden();
+      sections.forEach(s => setSecVisible(s.dataset.sec, openAll));
     });
 
     // Build UI
