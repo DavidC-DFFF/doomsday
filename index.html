@@ -4,522 +4,87 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Doomsday Drill</title>
-  <style>
-    :root{
-      --bg:#0b0f14; --text:#e7eef7; --muted:#8aa0b8;
-      --ok:#2ecc71; --bad:#ff4d4d; --warn:#f1c40f;
-      --line:#223046; --btn:#1f2a3d; --btn2:#223a63; --chip:#0e1420;
-      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-      --sans: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
-    }
-    *{box-sizing:border-box}
-    body{
-      margin:0; font-family:var(--sans);
-      background:linear-gradient(180deg,#070a10 0%, var(--bg) 100%);
-      color:var(--text);
-      -webkit-tap-highlight-color: transparent;
-    }
-    .wrap{max-width:980px; margin:0 auto; padding:14px}
-    .card{
-      background:rgba(18,24,38,.88);
-      border:1px solid var(--line);
-      border-radius:16px;
-      padding:14px;
-      box-shadow:0 10px 30px rgba(0,0,0,.35);
-    }
-
-    /* Top row: date + buttons together */
-    .topRow{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      align-items:center;
-      justify-content:flex-start;
-      margin-bottom:10px;
-    }
-    .fieldRow{
-      display:flex;
-      gap:10px;
-      align-items:center;
-      padding:10px 12px;
-      border:1px solid var(--line);
-      border-radius:14px;
-      background:var(--chip);
-      flex:0 0 auto;
-    }
-    label{font-size:12px; color:var(--muted)}
-    input{
-      font-family:var(--mono);
-      font-weight:900;
-      font-size:18px;
-      padding:8px 10px;
-      border-radius:12px;
-      border:1px solid var(--line);
-      background:#0b1426;
-      color:var(--text);
-      width:170px;
-      text-align:center;
-    }
-    .btns{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
-    button{
-      border:1px solid var(--line);
-      background:var(--btn);
-      color:var(--text);
-      padding:10px 12px;
-      border-radius:12px;
-      cursor:pointer;
-      font-weight:900;
-      font-size:14px;
-      min-height:44px;
-      user-select:none;
-      white-space:nowrap;
-    }
-    button.primary{background:var(--btn2); border-color:#2f4f86}
-    button.ghost{background:rgba(31,42,61,.65)}
-    button:active{transform:translateY(1px)}
-    button:disabled{opacity:.55; cursor:not-allowed}
-
-    /* Tabs row (square) */
-    .tabsRow{display:flex; gap:8px; flex-wrap:wrap; margin:10px 0}
-    .tabBtn{
-      width:44px; height:44px;
-      border-radius:12px;
-      border:1px solid var(--line);
-      background:var(--chip);
-      display:flex; align-items:center; justify-content:center;
-      font-family:var(--mono);
-      font-weight:900;
-      cursor:pointer;
-      user-select:none;
-    }
-    .tabBtn.on{
-      border-color:#2f4f86;
-      outline:2px solid rgba(90,140,220,.55);
-      background:#0b1426;
-    }
-
-    /* Sections */
-    .sec{
-      display:none;
-      border:1px solid var(--line);
-      border-radius:14px;
-      background:rgba(14,20,32,.55);
-      padding:12px;
-      margin-top:10px;
-      overflow:hidden;
-    }
-    .sec.on{display:block}
-
-    .chips{display:grid; gap:8px}
-    .cols7{grid-template-columns:repeat(7, minmax(0,1fr))}
-    .cols9{grid-template-columns:repeat(9, minmax(0,1fr))}
-    .cols12{grid-template-columns:repeat(12, minmax(0,1fr))}
-    .cols3{grid-template-columns:repeat(3, minmax(0,1fr))}
-    @media (max-width:520px){
-      .cols12{grid-template-columns:repeat(6, minmax(0,1fr))}
-      .cols9{grid-template-columns:repeat(5, minmax(0,1fr))}
-    }
-    @media (max-width:420px){
-      .cols7{grid-template-columns:repeat(4, minmax(0,1fr))}
-      .cols9{grid-template-columns:repeat(4, minmax(0,1fr))}
-      .cols12{grid-template-columns:repeat(4, minmax(0,1fr))}
-    }
-
-    .chip{
-      border:1px solid var(--line);
-      background:var(--chip);
-      border-radius:14px;
-      min-height:44px;
-      display:flex; align-items:center; justify-content:center;
-      font-family:var(--mono);
-      font-weight:900;
-      cursor:pointer;
-      user-select:none;
-    }
-    .chip[data-selected="true"]{
-      outline:2px solid rgba(90,140,220,.75);
-      border-color:#2f4f86;
-      background:#0b1426;
-    }
-    .chip.ok{border-color:rgba(46,204,113,.65); outline:2px solid rgba(46,204,113,.35)}
-    .chip.bad{border-color:rgba(255,77,77,.65); outline:2px solid rgba(255,77,77,.30)}
-    .chip.miss{border-color:rgba(241,196,15,.65); outline:2px solid rgba(241,196,15,.20)}
-
-    .days{display:grid; gap:8px; grid-template-columns:repeat(7, minmax(0,1fr))}
-    @media (max-width:520px){ .days{grid-template-columns:repeat(3, minmax(0,1fr))} }
-
-    .daybtn{
-      border:1px solid var(--line);
-      background:var(--chip);
-      border-radius:14px;
-      min-height:44px;
-      padding:10px 8px;
-      text-align:center;
-      cursor:pointer;
-      user-select:none;
-      font-weight:900;
-      font-size:13px;
-    }
-    .daybtn small{display:block; color:var(--muted); font-weight:800; margin-top:2px}
-    .daybtn[data-selected="true"]{
-      outline:2px solid rgba(90,140,220,.75);
-      border-color:#2f4f86;
-      background:#0b1426;
-    }
-    .daybtn.ok{border-color:rgba(46,204,113,.65); outline:2px solid rgba(46,204,113,.30)}
-    .daybtn.bad{border-color:rgba(255,77,77,.65); outline:2px solid rgba(255,77,77,.25)}
-    .daybtn.miss{border-color:rgba(241,196,15,.65); outline:2px solid rgba(241,196,15,.20)}
-
-    .always{
-      margin-top:10px;
-      border:1px solid var(--line);
-      border-radius:14px;
-      background:rgba(14,20,32,.55);
-      padding:12px;
-    }
-    .alwaysHead{
-      display:flex; justify-content:space-between; align-items:flex-end; gap:10px;
-      margin-bottom:8px;
-      font-weight:900;
-    }
-    .mini{font-size:12px; color:var(--muted); font-weight:800}
-
-    /* Bottom row: result + score side-by-side */
-    .bottomRow{
-      margin-top:10px;
-      display:flex;
-      justify-content:flex-end;
-      gap:8px;
-      flex-wrap:wrap;
-      align-items:center;
-    }
-    .pill{
-      display:inline-flex; gap:8px; align-items:center;
-      padding:7px 10px; border:1px solid var(--line);
-      border-radius:999px; font-family:var(--mono);
-      font-size:12px; color:var(--muted); background:var(--chip);
-      white-space:nowrap;
-    }
-    .pill.ok{border-color:rgba(46,204,113,.55); color:var(--text); background:rgba(46,204,113,.12)}
-    .pill.bad{border-color:rgba(255,77,77,.55); color:var(--text); background:rgba(255,77,77,.10)}
-    .pill.warn{border-color:rgba(241,196,15,.55); color:var(--text); background:rgba(241,196,15,.08)}
-
-    .locked .chip,
-    .locked .daybtn{ pointer-events:none; opacity:.92; }
-  </style>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="wrap">
     <div class="card" id="card">
       <div class="topRow">
         <div class="fieldRow">
-          <div>
+          <div class="dateBlock">
             <label>Date</label><br />
-            <input id="dateInput" type="text" readonly value="—" />
+            <input id="dateInput" type="text" readonly value="--/--/----" />
           </div>
         </div>
 
         <div class="btns">
-          <button class="primary" id="btnNew">Nouvelle date</button>
-          <button class="ghost" id="btnToggleAll">Tout replier</button>
+          <button class="ghost themeBtn" id="btnTheme" aria-label="Basculer le th&egrave;me" title="Basculer le th&egrave;me">&#127769;</button>
+          <button class="ghost" id="btnCompet" aria-pressed="false">Comp&eacute;t OFF</button>
+          <button class="primary" id="btnNew">START</button>
+          <button class="ghost" id="btnToggleAll">Tout d&eacute;plier</button>
+          <button class="ghost" id="btnHelp" aria-expanded="false">Aide</button>
         </div>
       </div>
 
       <div class="tabsRow">
-        <div class="tabBtn on" data-sec="K" title="K">K</div>
-        <div class="tabBtn on" data-sec="a" title="a">a</div>
-        <div class="tabBtn on" data-sec="b" title="b">b</div>
-        <div class="tabBtn on" data-sec="c" title="c">c</div>
-        <div class="tabBtn on" data-sec="D" title="Doomsday">D</div>
+        <div class="tabBtn" data-sec="K" title="K">K</div>
+        <div class="tabBtn" data-sec="a" title="a">a</div>
+        <div class="tabBtn" data-sec="b" title="b">b</div>
+        <div class="tabBtn" data-sec="c" title="c">c</div>
+        <div class="tabBtn" data-sec="D" title="Doomsday">D</div>
       </div>
 
-      <div class="sec on" data-sec="K"><div class="chips cols7" id="chipsK"></div></div>
-      <div class="sec on" data-sec="a"><div class="chips cols9" id="chipsA"></div></div>
-      <div class="sec on" data-sec="b"><div class="chips cols12" id="chipsB"></div></div>
-      <div class="sec on" data-sec="c"><div class="chips cols3" id="chipsC"></div></div>
+      <div class="sec" data-sec="K"><div class="chips cols7" id="chipsK"></div></div>
+      <div class="sec" data-sec="a"><div class="chips cols9" id="chipsA"></div></div>
+      <div class="sec" data-sec="b"><div class="chips cols12" id="chipsB"></div></div>
+      <div class="sec" data-sec="c"><div class="chips cols3" id="chipsC"></div></div>
 
-      <div class="sec on" data-sec="D">
-        <div style="display:flex; justify-content:space-between; align-items:flex-end; gap:10px; margin-bottom:8px;">
-          <div style="font-weight:900">Doomsday</div>
-          <div class="mini">lundi → dimanche</div>
-        </div>
+      <div class="sec" data-sec="D">
+        <div class="sectionTitle">Doomsday</div>
         <div class="days" id="daysDoomsday"></div>
       </div>
 
       <div class="always">
         <div class="alwaysHead">
           <div>Jour de la date</div>
-          <div class="mini">lundi → dimanche</div>
         </div>
         <div class="days" id="daysDate"></div>
       </div>
 
       <div class="bottomRow">
-        <div class="pill" id="pillResult" style="display:none;">—</div>
-        <div class="pill" id="pillScore">0 / 0</div>
+        <div class="pill" id="pillResult" style="display:none;">&mdash;</div>
+        <div class="pill big" id="pillTimer">&#9201; --</div>
+        <div class="pill big" id="pillAvg">Moy --</div>
+        <div class="pill big" id="pillScore">0 / 0</div>
+      </div>
+    </div>
+
+    <div class="helpPanel" id="helpPanel">
+      <button class="helpHandle" id="helpHandle" aria-expanded="false">Aide doomsday</button>
+      <div class="helpBody">
+        <h3>A quoi sert ce site ?</h3>
+        <p>Ce site sert a s'entrainer a trouver rapidement le jour de la semaine d'une date avec la methode Doomsday.</p>
+
+        <h3>Calcul de K, a, b, c et D</h3>
+        <p>Pour une annee Y :</p>
+        <p><code>C = floor(Y / 100)</code> (siecle)</p>
+        <p><code>y = Y mod 100</code> (deux derniers chiffres)</p>
+        <p><code>K = (5 * (C mod 4) + 2) mod 7</code></p>
+        <p><code>a = floor(y / 12)</code></p>
+        <p><code>b = y mod 12</code></p>
+        <p><code>c = floor(b / 4)</code></p>
+        <p><code>D = (a + b + c + K) mod 7</code></p>
+        <p><code>D</code> est le jour doomsday de l'annee (0 = dim, 1 = lun, ...).</p>
+
+        <h3>Dates Doomsday de reference</h3>
+        <p>4/4, 6/6, 8/8, 10/10, 12/12</p>
+        <p>5/9, 9/5, 7/11, 11/7</p>
+        <p>14/3, 28/2 (ou 29/2 en annee bissextile)</p>
+        <p>Janvier : 3/1 (ou 4/1 en annee bissextile)</p>
       </div>
     </div>
   </div>
 
-  <script>
-    const el = (id) => document.getElementById(id);
-    const mod = (n, m) => ((n % m) + m) % m;
-
-    const uiDays = [
-      {label:"Lun", name:"lundi", code:1},
-      {label:"Mar", name:"mardi", code:2},
-      {label:"Mer", name:"mercredi", code:3},
-      {label:"Jeu", name:"jeudi", code:4},
-      {label:"Ven", name:"vendredi", code:5},
-      {label:"Sam", name:"samedi", code:6},
-      {label:"Dim", name:"dimanche", code:0},
-    ];
-
-    function isLeapYear(y){
-      return (y % 4 === 0) && (y % 100 !== 0 || y % 400 === 0);
-    }
-    function daysInMonth(year, month1){
-      if([1,3,5,7,8,10,12].includes(month1)) return 31;
-      if([4,6,9,11].includes(month1)) return 30;
-      return isLeapYear(year) ? 29 : 28;
-    }
-    function weekdayCodeUTC(year, month1, day){
-      return new Date(Date.UTC(year, month1 - 1, day)).getUTCDay(); // 0=dim..6=sam
-    }
-    function computeParts(year){
-      const C = Math.floor(year / 100);
-      const K = mod(5 * mod(C, 4) + 2, 7);
-      const y = mod(year, 100);
-      const a = Math.floor(y / 12);
-      const b = mod(y, 12);
-      const c = Math.floor(b / 4);
-      const D = mod(a + b + c + K, 7);
-      return { year, K, a, b, c, D };
-    }
-    function pad2(n){ return String(n).padStart(2, "0"); }
-    function formatDateFR(d,m,y){ return `${pad2(d)}/${pad2(m)}/${y}`; }
-
-    let current = null;
-    let attempts = 0;
-    let perfects = 0;
-    let locked = false;
-    let startMs = 0;
-
-    const picks = { K:null, a:null, b:null, c:null, doomsday:null, dateDay:null };
-
-    function setScore(){
-      el("pillScore").textContent = `${perfects} / ${attempts}`;
-    }
-    function setLocked(v){
-      locked = v;
-      el("card").classList.toggle("locked", locked);
-    }
-
-    function showResult(kind, text){
-      const p = el("pillResult");
-      p.style.display = "inline-flex";
-      p.classList.remove("ok","bad","warn");
-      p.classList.add(kind);
-      p.textContent = text;
-    }
-    function hideResult(){
-      const p = el("pillResult");
-      p.style.display = "none";
-      p.textContent = "—";
-      p.classList.remove("ok","bad","warn");
-    }
-
-    function clearMarks(){
-      ["chipsK","chipsA","chipsB","chipsC"].forEach(id => {
-        [...el(id).children].forEach(ch => ch.classList.remove("ok","bad","miss"));
-      });
-      ["daysDoomsday","daysDate"].forEach(id => {
-        [...el(id).children].forEach(btn => btn.classList.remove("ok","bad","miss"));
-      });
-    }
-
-    function resetSelections(){
-      for(const k of Object.keys(picks)) picks[k] = null;
-      ["chipsK","chipsA","chipsB","chipsC"].forEach(id => {
-        [...el(id).children].forEach(ch => ch.dataset.selected = "false");
-      });
-      ["daysDoomsday","daysDate"].forEach(id => {
-        [...el(id).children].forEach(btn => btn.dataset.selected = "false");
-      });
-    }
-
-    function buildChipsRange(containerId, key, from, to){
-      const wrap = el(containerId);
-      wrap.innerHTML = "";
-      for(let v=from; v<=to; v++){
-        const d = document.createElement("div");
-        d.className = "chip";
-        d.textContent = v;
-        d.dataset.value = String(v);
-        d.dataset.selected = "false";
-        d.addEventListener("click", () => {
-          if(locked) return;
-          picks[key] = v;
-          [...wrap.children].forEach(ch => {
-            ch.dataset.selected = (Number(ch.dataset.value) === v) ? "true" : "false";
-          });
-        });
-        wrap.appendChild(d);
-      }
-    }
-
-    function buildDays(containerId, pickKey, onPick){
-      const wrap = el(containerId);
-      wrap.innerHTML = "";
-      uiDays.forEach(dy => {
-        const b = document.createElement("div");
-        b.className = "daybtn";
-        b.dataset.value = String(dy.code);
-        b.dataset.selected = "false";
-        b.innerHTML = `${dy.label}<small>${dy.name}</small>`;
-        b.addEventListener("click", () => {
-          if(locked) return;
-          picks[pickKey] = dy.code;
-          [...wrap.children].forEach(btn => {
-            btn.dataset.selected = (Number(btn.dataset.value) === dy.code) ? "true" : "false";
-          });
-          if(typeof onPick === "function") onPick();
-        });
-        wrap.appendChild(b);
-      });
-    }
-
-    function anyChosen(){
-      return Object.values(picks).some(v => v !== null);
-    }
-
-    function markGroup(containerId, picked, correct){
-      const children = [...el(containerId).children];
-
-      if(picked === null){
-        const c = children.find(x => Number(x.dataset.value) === correct);
-        if(c) c.classList.add("miss");
-        return { answered:false, correct:true };
-      }
-
-      const p = children.find(x => Number(x.dataset.value) === picked);
-      if(p) p.classList.add(picked === correct ? "ok" : "bad");
-
-      if(picked !== correct){
-        const c = children.find(x => Number(x.dataset.value) === correct);
-        if(c) c.classList.add("ok");
-      }
-
-      return { answered:true, correct: picked === correct };
-    }
-
-    function validateNow(){
-      if(!current || locked) return;
-
-      if(!anyChosen()){
-        showResult("warn", "Donne au moins 1 réponse");
-        attempts++;
-        setScore();
-        setLocked(true);
-        return;
-      }
-
-      attempts++;
-
-      const sol = current;
-
-      clearMarks();
-      hideResult();
-
-      const rK   = markGroup("chipsK",       picks.K,        sol.K);
-      const rA   = markGroup("chipsA",       picks.a,        sol.a);
-      const rB   = markGroup("chipsB",       picks.b,        sol.b);
-      const rC   = markGroup("chipsC",       picks.c,        sol.c);
-      const rD   = markGroup("daysDoomsday", picks.doomsday, sol.D);
-      const rDay = markGroup("daysDate",     picks.dateDay,  sol.dateDow);
-
-      const results = [rK,rA,rB,rC,rD,rDay];
-      const allAnsweredCorrect = results.filter(r => r.answered).every(r => r.correct);
-
-      if(allAnsweredCorrect){
-        perfects++;
-        const elapsed = performance.now() - startMs;
-        showResult("ok", `✅ OK · ${(elapsed/1000).toFixed(2)}s`);
-      } else {
-        showResult("bad", "❌ Faux");
-      }
-
-      setScore();
-      setLocked(true);
-    }
-
-    function chooseRandomDate(){
-      const min = 1583, max = 2400;
-      const year = Math.floor(Math.random() * (max - min + 1)) + min;
-
-      const base = computeParts(year);
-      const month = Math.floor(Math.random() * 12) + 1;
-      const day = Math.floor(Math.random() * daysInMonth(year, month)) + 1;
-      const dow = weekdayCodeUTC(year, month, day);
-
-      current = { ...base, dateDay: day, dateMonth: month, dateDow: dow };
-
-      el("dateInput").value = formatDateFR(day, month, year);
-
-      setLocked(false);
-      clearMarks();
-      hideResult();
-      resetSelections();
-
-      startMs = performance.now();
-    }
-
-    // Tabs: toggle sections
-    const tabButtons = [...document.querySelectorAll(".tabBtn")];
-    const sections = [...document.querySelectorAll(".sec")];
-
-    function setSecVisible(secKey, visible){
-      const btn = tabButtons.find(b => b.dataset.sec === secKey);
-      const sec = sections.find(s => s.dataset.sec === secKey);
-      if(btn) btn.classList.toggle("on", visible);
-      if(sec) sec.classList.toggle("on", visible);
-      refreshToggleAllLabel();
-    }
-
-    function areAllHidden(){ return sections.every(s => !s.classList.contains("on")); }
-    function refreshToggleAllLabel(){
-      el("btnToggleAll").textContent = areAllHidden() ? "Tout déplier" : "Tout replier";
-    }
-
-    tabButtons.forEach(btn => {
-      btn.addEventListener("click", () => {
-        const key = btn.dataset.sec;
-        const sec = sections.find(s => s.dataset.sec === key);
-        const now = sec ? sec.classList.contains("on") : false;
-        setSecVisible(key, !now);
-      });
-    });
-
-    el("btnToggleAll").addEventListener("click", () => {
-      const openAll = areAllHidden();
-      sections.forEach(s => setSecVisible(s.dataset.sec, openAll));
-    });
-
-    // Build UI
-    buildChipsRange("chipsK","K",0,6);
-    buildChipsRange("chipsA","a",0,8);
-    buildChipsRange("chipsB","b",0,11);
-    buildChipsRange("chipsC","c",0,2);
-
-    buildDays("daysDoomsday","doomsday");
-    buildDays("daysDate","dateDay", validateNow); // auto-validate here
-
-    el("btnNew").addEventListener("click", chooseRandomDate);
-
-    // Init
-    refreshToggleAllLabel();
-    setScore();
-    chooseRandomDate();
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
