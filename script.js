@@ -115,6 +115,10 @@ function toggleTheme(){
       b.classList.toggle("on", competMode);
       b.setAttribute("aria-pressed", competMode ? "true" : "false");
       b.textContent = competMode ? "Comp\u00E9t ON" : "Comp\u00E9t OFF";
+      if(competMode){
+        sections.forEach(s => setSecVisible(s.dataset.sec, false));
+        setHelpOpen(false);
+      }
       resetCompetRun();
       resetClassicScore();
       resetAverage();
@@ -368,12 +372,12 @@ function toggleTheme(){
       el("btnToggleAll").textContent = areAllHidden() ? "Tout d\u00E9plier" : "Tout replier";
     }
     function setHelpOpen(v){
-      el("helpPanel").classList.toggle("on", v);
+      el("helpOverlay").classList.toggle("on", v);
+      el("helpOverlay").setAttribute("aria-hidden", v ? "false" : "true");
       el("btnHelp").setAttribute("aria-expanded", v ? "true" : "false");
-      el("helpHandle").setAttribute("aria-expanded", v ? "true" : "false");
     }
     function toggleHelp(){
-      const now = el("helpPanel").classList.contains("on");
+      const now = el("helpOverlay").classList.contains("on");
       setHelpOpen(!now);
     }
 
@@ -390,8 +394,15 @@ function toggleTheme(){
       const openAll = areAllHidden();
       sections.forEach(s => setSecVisible(s.dataset.sec, openAll));
     });
-    el("btnHelp").addEventListener("click", toggleHelp);
-    el("helpHandle").addEventListener("click", toggleHelp);
+    el("btnHelp").addEventListener("click", (ev) => {
+      ev.stopPropagation();
+      toggleHelp();
+    });
+    document.addEventListener("click", () => {
+      if(el("helpOverlay").classList.contains("on")){
+        setHelpOpen(false);
+      }
+    });
 
     // Build UI
     buildChipsRange("chipsK","K",0,6);

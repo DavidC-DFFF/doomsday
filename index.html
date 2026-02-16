@@ -57,31 +57,36 @@
         <div class="pill big" id="pillAvg">Moy --</div>
         <div class="pill big" id="pillScore">0 / 0</div>
       </div>
-    </div>
 
-    <div class="helpPanel" id="helpPanel">
-      <button class="helpHandle" id="helpHandle" aria-expanded="false">Aide doomsday</button>
-      <div class="helpBody">
-        <h3>A quoi sert ce site ?</h3>
-        <p>Ce site sert a s'entrainer a trouver rapidement le jour de la semaine d'une date avec la methode Doomsday.</p>
+      <div class="helpOverlay" id="helpOverlay" aria-hidden="true">
+      <div class="helpPanel" id="helpPanel" role="dialog" aria-modal="false">
+        <div class="helpBody helpGrid">
+          <div class="helpCol">
+            <h3>A quoi sert ce site ?</h3>
+            <p>Ce site sert a s'entrainer a trouver rapidement le jour de la semaine d'une date avec la methode Doomsday.</p>
 
-        <h3>Calcul de K, a, b, c et D</h3>
-        <p>Pour une annee Y :</p>
-        <p><code>C = floor(Y / 100)</code> (siecle)</p>
-        <p><code>y = Y mod 100</code> (deux derniers chiffres)</p>
-        <p><code>K = (5 * (C mod 4) + 2) mod 7</code></p>
-        <p><code>a = floor(y / 12)</code></p>
-        <p><code>b = y mod 12</code></p>
-        <p><code>c = floor(b / 4)</code></p>
-        <p><code>D = (a + b + c + K) mod 7</code></p>
-        <p><code>D</code> est le jour doomsday de l'annee (0 = dim, 1 = lun, ...).</p>
+            <h3>Dates Doomsday de reference</h3>
+            <p>4/4, 6/6, 8/8, 10/10, 12/12</p>
+            <p>5/9, 9/5, 7/11, 11/7</p>
+            <p>14/3, 28/2 (ou 29/2 en annee bissextile)</p>
+            <p>Janvier : 3/1 (ou 4/1 en annee bissextile)</p>
+          </div>
 
-        <h3>Dates Doomsday de reference</h3>
-        <p>4/4, 6/6, 8/8, 10/10, 12/12</p>
-        <p>5/9, 9/5, 7/11, 11/7</p>
-        <p>14/3, 28/2 (ou 29/2 en annee bissextile)</p>
-        <p>Janvier : 3/1 (ou 4/1 en annee bissextile)</p>
+          <div class="helpCol">
+            <h3>Calcul de K, a, b, c et D</h3>
+            <p>Pour une annee Y :</p>
+            <p><code>C = floor(Y / 100)</code> (siecle)</p>
+            <p><code>y = Y mod 100</code> (deux derniers chiffres)</p>
+            <p><code>K = (5 * (C mod 4) + 2) mod 7</code></p>
+            <p><code>a = floor(y / 12)</code></p>
+            <p><code>b = y mod 12</code></p>
+            <p><code>c = floor(b / 4)</code></p>
+            <p><code>D = (a + b + c + K) mod 7</code></p>
+            <p><code>D</code> est le jour doomsday de l'annee (0 = dim, 1 = lun, ...).</p>
+          </div>
+        </div>
       </div>
+    </div>
     </div>
   </div>
 
